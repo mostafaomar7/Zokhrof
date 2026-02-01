@@ -1,0 +1,16 @@
+.splash {
+  height: 100vh;
+  background-color: #4a3b5f;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.location {
+    color: yellow;
+    margin-top: 10px;
+  }
+body{
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
