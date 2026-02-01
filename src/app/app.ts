@@ -16,6 +16,6 @@ export class App implements OnInit{
 ngOnInit() {
     setTimeout(() => {
       this.isLoading = false;
-    }, 100000); // مؤقتًا
+    }, 100000000); // مؤقتًا
   }
 }
