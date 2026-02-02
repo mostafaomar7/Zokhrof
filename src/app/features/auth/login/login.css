@@ -1,0 +1,150 @@
+:host{ display:block; }
+
+.login-page{
+  height:100vh;
+  position:relative;
+  overflow:hidden;
+  direction: rtl;
+  font-family: "Cairo", system-ui, sans-serif;
+  background:#E6E9F7;
+  background-image: url('../../../../../assets/Group\ 92.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+
+}
+
+/* الخلفية */
+
+
+/* طبقة المحتوى */
+.content{
+  position:relative;
+  z-index:1;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding: 24px;
+}
+
+/* اللوجو فوق */
+.brand{
+  color:#3C2F4B;
+  font-weight:800;
+  font-size: 28px;
+  margin-bottom: 18px;
+}
+
+/* الكارد */
+.card{
+  width: min(400px, 92vw);
+  background:#fff;
+  border-radius: 22px;
+  padding: 34px 36px 28px;
+  box-shadow: 0 18px 55px rgba(70,56,83,.18);
+}
+
+/* العناوين */
+.title{
+  margin:0;
+  text-align:center;
+  font-size: 30px;
+  font-weight: 800;
+  color:#3C2F4B;
+}
+.subtitle{
+  margin: 8px 0 22px;
+  text-align:center;
+  font-size: 18px;
+  font-weight: 700;
+  color:#3C2F4B;
+  opacity:.85;
+}
+
+/* فورم */
+.form{
+  display:flex;
+  flex-direction:column;
+  gap: 18px;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+
+.label{
+  font-size: 14px;
+  font-weight: 700;
+  color:#3C2F4B;
+}
+
+.input{
+  width:97%;
+  height: 44px;
+  border: 1px solid rgba(60,47,75,.18);
+  border-radius: 8px;
+  padding: 0 14px;
+  outline: none;
+  font-size: 15px;
+  color:#111;
+  background:#fff;
+  direction: ltr;
+  &:focus{
+    border-color: rgba(70,56,83,.45);
+    box-shadow: 0 0 0 4px rgba(70,56,83,.10);
+  }
+}
+
+.password-wrap{
+  position:relative;
+  width:100%;
+}
+
+
+.eye{
+  position:absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border:0;
+  background: transparent;
+  cursor:pointer;
+  opacity:.65;
+  font-size: 18px;
+
+  &:hover{ opacity:1; }
+}
+
+.btn{
+  margin-top: 10px;
+  height: 52px;
+  border:0;
+  border-radius: 10px;
+  background:#463853;
+  color:#fff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor:pointer;
+  transition: transform .08s ease, opacity .2s ease;
+  width: 100%;
+  &:active{
+    transform: translateY(1px);
+  }
+  &:hover{
+    opacity:.95;
+  }
+}
+
+/* Responsive */
+@media (max-width: 520px){
+  .card{
+    padding: 26px 20px 22px;
+    border-radius: 18px;
+  }
+  .title{ font-size: 26px; }
+  .subtitle{ font-size: 16px; }
+}
