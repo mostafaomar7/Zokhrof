@@ -79,3 +79,259 @@
   height: 100%;
   display:block;
 }
+/* تنسيق الجسم الرئيسي */
+.pd-body {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px; /* Sidebar - Main - Sidebar */
+  gap: 20px;
+  padding: 20px;
+  direction: rtl; /* عشان يظبط الاتجاه العربي */
+  background-color: #f8f9fa; /* لون خلفية خفيف */
+  min-height: 100vh;
+}
+
+/* الكروت العامة */
+.pd-card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* البروفايل */
+.profile-header {
+  text-align: center;
+  position: relative;
+}
+.emp-label {
+  background: #eee;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  position: absolute;
+  top: -10px;
+  right: 0;
+}
+.profile-pic {
+  width: 60px;
+  height: 60px;
+  background: #f0f0f0;
+  border-radius: 50%;
+  margin: 10px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+}
+.status.online { color: #28a745; font-size: 12px; }
+.status.offline { color: #6c757d; font-size: 12px; }
+.contact-info { font-size: 11px; margin: 5px 0; color: #555; }
+
+/* التقييم والدائرة */
+.rating-section { margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 15px; }
+.rating-content { display: flex; align-items: center; gap: 15px; }
+.rating-content.reverse { flex-direction: row-reverse; }
+
+.progress-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 8px solid #f0f0f0;
+  position: relative;
+}
+.progress-circle.green { border-top-color: #00B621; }
+.progress-circle.orange { border-top-color: #ff8c00; }
+.progress-circle .percent { font-weight: bold; font-size: 18px; }
+
+.rating-list { list-style: none; padding: 0; flex: 1; font-size: 11px; }
+.rating-list li { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.rating-list li .val { background: #f8f9fa; padding: 0 5px; border-radius: 4px; border: 1px solid #eee; }
+
+/* المحتوى الأوسط والـ Tabs */
+.tabs-header {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+.tabs-header span { cursor: pointer; color: #999; font-weight: bold; }
+.tabs-header span.active { color: #423352; border-bottom: 2px solid #423352; }
+
+/* الـ Chips والاختيارات */
+.project-grid { display: flex; flex-direction: column; gap: 20px; }
+.data-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.data-group label { display: block; font-size: 12px; margin-bottom: 8px; font-weight: bold; text-align: center;}
+.chips { display: flex; border: 1px solid #eee; border-radius: 8px; overflow: hidden; }
+.chip { flex: 1; text-align: center; padding: 5px; font-size: 12px; background: #fff; cursor: pointer; }
+.chip.yellow { background: #FFEB3B; }
+.chip.large { flex: 2; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center;}
+
+/* المساحات */
+.area-row { display: flex; gap: 20px; justify-content: center; margin-top: 10px;}
+.area-box { display: flex; align-items: center; gap: 10px; }
+.val-box { border: 1px solid #eee; padding: 5px 15px; border-radius: 5px; background: #fff; display: flex; gap: 10px; align-items: center;}
+.val-box span { font-weight: bold; color: #FFEB3B; text-shadow: 1px 1px 0 #000; font-size: 16px;}
+
+/* الجزء السفلي */
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.row-val { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px; }
+.input-sim { border: 1px solid #eee; padding: 2px 10px; border-radius: 4px; min-width: 60px; text-align: center; }
+
+/* Gantt Chart Placeholder */
+.gantt-chart-placeholder {
+  height: 150px;
+  background-image: linear-gradient(90deg, #eee 1px, transparent 1px);
+  background-size: 20px 100%;
+  position: relative;
+  margin-top: 10px;
+}
+/* تنسيق الكارت الأساسي */
+.profile-card {
+  background: #f8f9fd !important; /* لون الخلفية الفاتح من الفيجما */
+  border: 1px solid #eef0f7;
+  border-radius: 20px;
+  position: relative;
+  padding: 15px !important;
+}
+
+/* التاج العلوي */
+.emp-label-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 5px;
+}
+.emp-label {
+  background: #e6e8f3;
+  color: #000;
+  padding: 4px 15px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* الهيدر (فليكس لعكس الصورة والنص) */
+.profile-header-new {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 5px;
+}
+.profile-info-text {
+  text-align: right;
+  flex: 1;
+}
+.emp-name {
+  font-size: 18px;
+  margin: 0 0 5px 0;
+  color: #000;
+  font-weight: 800;
+}
+.status-box {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+.status-online { color: #00B621; font-weight: bold; font-size: 14px; }
+
+.contact-row {
+  font-size: 13px;
+  color: #444;
+  margin: 3px 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.profile-pic-circle {
+  width: 55px;
+  height: 55px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.divider { border: 0; border-top: 1px dashed #d1d5db; margin: 15px 0; }
+
+/* منطقة التقييم */
+.rating-title-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+.rating-text { font-weight: bold; font-size: 15px; color: #000; }
+
+.rating-content-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* الدائرة على الشمال */
+.overall-circle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.overall-text { font-size: 14px; font-weight: bold; color: #000; }
+
+.progress-circle-big {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #fff;
+  border: 10px solid #f0f0f0;
+  border-top-color: #388e3c; /* اللون الأخضر الغامق من الفيجما */
+  border-right-color: #388e3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-45deg); /* عشان الفتحة تبدأ من مكان صح */
+}
+.percent-val {
+  transform: rotate(45deg); /* نرجع النص لوضعه الطبيعي */
+  font-size: 24px;
+  font-weight: 900;
+  color: #423352;
+}
+
+/* القائمة (الانبوت شمال والاسم يمين) */
+.rating-stats-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  padding-left: 15px;
+}
+.rating-stats-list li {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.stat-label { font-size: 13px; color: #333; flex: 1; text-align: right; }
+.stat-input {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 2px 8px;
+  background: #fff;
+  min-width: 60px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  font-weight: bold;
+}
