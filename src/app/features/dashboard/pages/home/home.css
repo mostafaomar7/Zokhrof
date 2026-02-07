@@ -1,0 +1,487 @@
+:host{ display:block; }
+*{ box-sizing:border-box; font-family: system-ui, sans-serif; }
+section{
+  margin-left: 10px;
+}
+.figma-page{
+  min-height: 100vh;
+  background:#3f2f50;
+  display:flex;
+  justify-content:center;
+  padding: 10px;
+  direction: rtl;
+}
+/* تطريز / نقاط على جانب الموبايل */
+.side-dots{
+  position: absolute;
+  left: -10px;              /* يطلع شوية بره زي الفيجما */
+  top: 155px;               /* عدّلها لو عايز أعلى/أسفل */
+  width: 18px;
+  height: 220px;
+  opacity: .75;
+  pointer-events: none;
+
+  /* pattern نقط */
+  background:
+    radial-gradient(circle, #2f2540 1px, transparent 3px) 0 0 / 8px 8px;
+  filter: blur(.1px);
+}
+
+/* لازم phone تكون position relative علشان absolute يشتغل */
+.phone{ position: relative; }
+
+/* PHONE */
+.phone{
+  width: 320px;
+  height: 92vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction: column;
+  direction: rtl;
+}
+
+.ic{ width:18px; height:18px; display:block; }
+.ic.sm{ width:14px; height:14px; display:block; }
+
+/* TOPBAR */
+.topbar{
+  background:#3f2f50;
+  padding: 10px 12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+}
+
+/* الصفحة الرئيسية يمين */
+.home-link{
+  position: relative;
+  display:flex;
+  align-items:center;
+  gap: 6px;
+  color:#F2D34F;
+  font-weight: 900;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.home-underline{
+  position:absolute;
+  bottom:-8px;
+  right:0;
+  width: 92px;
+  height: 3px;
+  border-radius: 3px;
+  background:#F2D34F;
+}
+
+/* تتبع المشاريع بدون خلفية */
+.track-link{
+  border:0;
+  background: transparent;
+  color:#fff;
+  font-weight: 800;
+  font-size: 12px;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  cursor:pointer;
+  padding: 6px 6px;
+}
+
+/* اللغة */
+.lang{
+  display:flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
+}
+.lang-pill{
+  border:0;
+  background:transparent;
+  color: rgba(255,255,255,.85);
+  font-weight:900;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 10px;
+  cursor:pointer;
+}
+.lang-pill.active{
+  background:#fff;
+  color:#3f2f50;
+}
+
+/* BODY */
+.body{
+  flex:1;
+  background:#fff;
+  padding: 14px 12px 10px;
+  overflow:auto;
+  border-radius: 28px;
+}
+
+/* hide scrollbar */
+.no-scrollbar{ scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar{ width:0; height:0; }
+
+.main-title{
+  text-align:center;
+  font-size: 14px;
+  font-weight: 900;
+  color:#2f2540;
+  margin: 6px 0 14px;
+}
+.section-title{
+  text-align:center;
+  font-size: 12px;
+  font-weight: 900;
+  color:#2f2540;
+  margin: 14px 0 10px;
+}
+
+/* PANEL */
+.panel{
+  background:#eef1fb;
+  border-radius: 18px;
+  padding: 12px 10px;
+}
+
+/* TABS */
+.panel-tabs{
+  display:flex;
+  border-bottom: 1px solid rgba(47,37,64,.18);
+  margin: 0 4px 10px;
+}
+.panel-tab{
+  flex:1;
+  border:0;
+  background: transparent;
+  padding: 10px 0;
+  font-weight: 900;
+  font-size: 12px;
+  color: rgba(47,37,64,.55);
+  position: relative;
+  cursor:pointer;
+}
+.panel-tab.active{
+  color:#2f2540;
+}
+.panel-tab.active::after{
+  content:"";
+  position:absolute;
+  bottom:-2px;
+  left: 18%;
+  width: 64%;
+  height: 3px;
+  border-radius: 3px;
+  background:#463853;
+}
+
+/* ROWS */
+.rows{ display:flex; flex-direction: column; }
+
+.row{
+  display:grid;
+  grid-template-columns: auto 1fr auto; /* PDF | Text | Button */
+  gap: 10px;
+  align-items:center;
+  padding: 10px 6px;
+  min-height: 54px;
+
+}
+.row + .row{
+  border-top: 1px solid rgba(47,37,64,.10);
+}
+
+/* PDF button (بديل icon الفيجما) */
+.pdf-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(47,37,64,.14);
+  background:#fff;
+  color:#d43a3a;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  padding:0;
+}
+.pdf-ic{ width:18px; height:18px; display:block; }
+
+/* TEXT */
+.row-text{ min-width:0; }
+.row-name{
+  font-size: 12px;
+  font-weight: 900;
+  color:#2f2540;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.row-code{
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(47,37,64,.55);
+}
+
+/* ACTION */
+.row-btn{
+  border:0;
+  background:#463853;
+  color:#fff;
+  font-weight: 900;
+  font-size: 11px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  min-width: 58px;
+}
+
+/* FOOTER */
+.footer{
+  background:#3f2f50;
+  padding: 10px 12px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap: 10px;
+}
+
+.footer-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.12); /* ✅ لها خلفية */
+  color:#fff;                         /* ✅ القفل مش أصفر */
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+
+.footer-keys{
+  display:flex;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.12);
+}
+
+/* input نفسه */
+.key-input{
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,.35);
+  background: rgba(255,255,255,.08);
+  color:#fff;
+  text-align: center;
+  font-weight: 900;
+  font-size: 11px;
+  outline: none;
+  padding: 0;
+}
+
+/* focus */
+.key-input:focus{
+  border-color: rgba(255,255,255,.85);
+  background: rgba(255,255,255,.18);
+}
+
+/* منع أسهم input number */
+.key-input::-webkit-outer-spin-button,
+.key-input::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.key{
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,.35);
+  background: rgba(255,255,255,.08);
+}
+/* ===== EMPTY PHONES (PART 2 & 3) ===== */
+.phone-empty{
+  background:#fff;
+}
+
+/* شاشة فاضية */
+.empty-screen{
+  flex: 1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+}
+
+/* عنوان المنتصف */
+.empty-title{
+  font-size: 14px;
+  font-weight: 900;
+  color:#2f2540;
+}
+
+/* ===== DOTS LEFT/RIGHT ===== */
+.side-dots{
+  position:absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 280px;
+  opacity: .75;
+  pointer-events:none;
+
+  background:
+    radial-gradient(circle, rgba(63,47,80,.45) 2px, transparent 3px) 0 0 / 8px 8px;
+}
+
+.side-dots.left{ left: -12px; }
+.side-dots.right{ right: -12px; }
+/* ===== PART 4 (FINANCE) ===== */
+.phone-finance .body{
+  padding-top: 12px;
+}
+
+/* finance header row spacing */
+.finance-row{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* chip button (user) */
+.chip-btn{
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.12);
+  color:#fff;
+  cursor:pointer;
+}
+
+/* PDF icon red fill */
+.pdf-fill{
+  color:#d43a3a; /* ✅ الأحمر زي الفيجما */
+  display:grid;
+  place-items:center;
+}
+
+/* تطريز يمين فقط (زي الصورة) */
+.side-dots.right{
+  position:absolute;
+  right:-12px;
+  top: 55%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 300px;
+  opacity: .75;
+  pointer-events:none;
+  background:
+    radial-gradient(circle, rgba(63,47,80,.45) 2px, transparent 3px) 0 0 / 8px 8px;
+}
+
+/* تأكيد إن phone relative */
+.phone{ position: relative; }
+/* ===== FIGMA FINANCE HEADER FINAL ===== */
+.finance-topbar{
+  background:#3f2f50;
+  padding: 10px 12px;
+}
+
+/* الهيدر */
+.finance-bar{
+  display:flex;
+  align-items:center;
+  direction: ltr;          /* ✅ RTL */
+  flex-wrap: nowrap;
+  overflow: visible;       /* ✅ يمنع قصّ البادج */
+}
+
+/* العناصر العادية في الهيدر */
+.h-item{
+  display:flex;
+  align-items:center;
+  position: relative;
+}
+
+.h-ic{
+  width: 18px;
+  height: 18px;
+  color:#fff;
+  display:block;
+}
+
+
+/* نص الهيدر */
+.h-text{
+  font-size: 10px;
+  font-weight: 700;
+  color:#fff;
+  white-space: nowrap;
+}
+
+/* بادج */
+.h-badge{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  width: 16px;
+  height: 16px;
+  border-radius:50%;
+  background:#ff3b30;
+  color:#fff;
+  font-size: 10px;
+  font-weight: 800;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* المستخدم (بدون خلفية) */
+.h-user{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  background: transparent;
+  border: 0;
+  color:#fff;
+  cursor: pointer;
+  padding: 2px 4px;
+  flex: 0 0 auto;
+}
+
+.user-avatar{
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background:#fff;         /* ✅ دائرة بيضاء */
+  display:grid;
+  place-items:center;
+  color:#3f2f50;
+}
+
+.ua-ic{
+  width: 16px;
+  height: 16px;
+  display:block;
+  color:#3f2f50;
+}
+
+.h-user .chev{ opacity: .9; }
+
+/* ✅ الوقت فقط بخلفية بيضاء */
+.time-chip{
+  background:#fff;
+  color:#3f2f50;
+  border-radius: 10px;
+  padding: 6px 10px;
+  min-height: 30px;
+}
+
+/* داخل chip: النص والأيقونة غامقين */
+.time-chip .h-text{ color:#3f2f50; }
+.time-chip .h-ic{ color:#3f2f50; }
