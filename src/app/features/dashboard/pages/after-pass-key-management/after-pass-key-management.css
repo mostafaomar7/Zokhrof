@@ -597,16 +597,3 @@ border-radius: 0;       /* ✅ مش عايزين راديس على الفون ك
   justify-content:center;
   gap: 8px;
 }
-.phone{
-  display: flex;
-  flex-direction: column;
-  height: 92.5vh;        /* أو 100vh حسب تصميمك */
-  background: #fff;    /* لو الخلفية البيضا هنا */
-  border-radius: 24px; /* حسب تصميمك */
-  overflow: hidden;    /* يمنع أي حاجة تطلع برا */
-}
-
-.body{
-  flex: 1;             /* يخلي المحتوى يتمدد */
-  overflow: auto;      /* سكرول للمحتوى */
-}

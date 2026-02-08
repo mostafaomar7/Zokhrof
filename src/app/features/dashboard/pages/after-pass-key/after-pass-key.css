@@ -235,7 +235,6 @@
 .footer-btn{
   width: 34px;
   height: 34px;
-  border-radius: 10px;
   border: 1px solid rgba(255,255,255,.18);
   background: rgba(255,255,255,.12);
   color:#fff;
@@ -351,7 +350,7 @@
 
 .f-inbox-title{
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   color:#2f2540;
   white-space: nowrap;
   overflow:hidden;
@@ -409,7 +408,7 @@
 .f-due-mid{ min-width:0; }
 .f-due-title{
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   color:#2f2540;
   white-space: nowrap;
   overflow:hidden;
@@ -442,8 +441,8 @@
 .f-alert-ic.up{ color:#f59e0b; }
 
 .f-alert-text{
-  font-size: 12px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 600;
   color:#2f2540;
   white-space: nowrap;
   overflow:hidden;
@@ -626,7 +625,7 @@ section{
 /* PHONE */
 .phone{
   width: 320px;
-  height: 92vh;
+  height: 93.5vh;
   overflow:hidden;
   display:flex;
   flex-direction: column;
@@ -844,7 +843,6 @@ section{
 .footer-btn{
   width: 34px;
   height: 34px;
-  border-radius: 10px;
   border: 1px solid rgba(255,255,255,.18);
   background: rgba(255,255,255,.12); /* ✅ لها خلفية */
   color:#fff;                         /* ✅ القفل مش أصفر */
@@ -1078,3 +1076,304 @@ section{
 /* داخل chip: النص والأيقونة غامقين */
 .time-chip .h-text{ color:#3f2f50; }
 .time-chip .h-ic{ color:#3f2f50; }
+:host{ display:block; }
+*{ box-sizing:border-box; font-family:"Cairo", system-ui, sans-serif; }
+
+.phone{
+  width: 320px;
+  height: 92vh;
+  display:flex;
+  flex-direction: column;
+  direction: rtl;
+  position: relative;
+  overflow: visible;
+  background: transparent;
+}
+
+/* ===== HEADER ===== */
+.topbar{
+  background:#3f2f50;
+  padding: 10px 12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+}
+
+.ic{ width:18px; height:18px; display:block; }
+.ic.sm{ width:14px; height:14px; display:block; }
+
+.home-link{
+  position: relative;
+  display:flex;
+  align-items:center;
+  gap: 6px;
+  color:#F2D34F;
+  font-weight: 900;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.home-underline{
+  position:absolute;
+  bottom:-8px;
+  right:0;
+  width: 92px;
+  height: 3px;
+  border-radius: 3px;
+  background:#F2D34F;
+}
+
+.track-link{
+  border:0;
+  background: transparent;
+  color:#fff;
+  font-weight: 800;
+  font-size: 12px;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  cursor:pointer;
+  padding: 6px 6px;
+}
+
+.lang{
+  display:flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
+}
+.lang-pill{
+  border:0;
+  background:transparent;
+  color: rgba(255,255,255,.85);
+  font-weight:900;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 10px;
+  cursor:pointer;
+}
+.lang-pill.active{
+  background:#fff;
+  color:#3f2f50;
+}
+
+/* ===== WHITE CARD (body + footer) ===== */
+.card-body{
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+  border-radius: 28px 28px 0 0;   /* ✅ فوق بس */
+  padding: 14px 12px 0;          /* ✅ مفيش padding تحت عشان الفوتر يكمل */
+}
+
+.card-footer{
+  background:#fff;
+  border-radius: 0 0 28px 28px;  /* ✅ تحت بس */
+  padding: 10px 12px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+}
+
+/* hide scrollbar */
+.no-scrollbar{ scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar{ width:0; height:0; }
+
+/* ===== FOOTER KEYS ===== */
+.footer-btn{
+  width: 24px;
+  height: 34px;
+  border: 0;
+  background: #3F3F3F;
+  color:#fff;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+
+.footer-keys{
+  display:flex;
+  gap: 6px;
+  background: transparent;
+  border: 0;
+}
+
+.key-input{
+  width: 21px;
+  height: 28px;
+  border-radius: 2px;
+  border: 1px solid rgba(47,37,64,.25);
+  background:#fff;
+  color:#2f2540;
+  text-align:center;
+  font-weight: 900;
+  font-size: 14px;
+  outline: none;
+  padding: 0;
+  -webkit-text-security: disc;
+  letter-spacing: 1px;
+}
+.key-input:focus{
+  border-color: rgba(63,47,80,.55);
+  box-shadow: 0 0 0 3px rgba(63,47,80,.12);
+}
+
+/* ===== DOTS ===== */
+.side-dots{
+  position:absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 280px;
+  opacity: .75;
+  pointer-events:none;
+  background: radial-gradient(circle, rgba(63,47,80,.45) 2px, transparent 3px) 0 0 / 8px 8px;
+}
+.side-dots{ left: -12px; }
+.side-dots.left{ left: -12px; }
+.side-dots.right{ right: -12px; left:auto; }
+/* ✅ ممنوع أي سكرول جوه الموبايل */
+
+
+
+
+/* ✅ الـ Wrapper الأبيض اللي جواه body + footer */
+.white-shell{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 28px;
+  overflow: hidden;            /* ✅ يقص أي حاجة وتظبط الراديس */
+}
+
+/* ✅ المحتوى ياخد المساحة */
+.white-shell > .body,
+.white-shell > .finance-body{
+  flex: 1;
+  min-height: 0;
+  background: transparent;     /* الأبيض من الـ wrapper */
+  border-radius: 0 !important; /* الراديس من الـ wrapper */
+  padding: 14px 12px 10px;
+}
+
+/* ✅ الفوتر جوه الأبيض */
+.white-shell > .footer{
+  margin-top: auto;
+  background: transparent !important;  /* ✅ مش بنفسجي */
+  padding: 10px 12px 15px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap: 10px;
+}
+
+/* ✅ شكل أزرار الفوتر زي الصورة */
+.white-shell > .footer .footer-btn{
+  width: 24px;
+  height: 28px;
+  border-radius: 2px;
+  border: 0;
+  background: #3F3F3F;
+  color: #fff;
+  display:grid;
+  place-items:center;
+}
+
+.white-shell > .footer .footer-keys{
+  display:flex;
+  gap: 6px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.white-shell > .footer .key-input{
+  width: 21px;
+  height: 28px;
+  border-radius: 2px;
+  border: 1px solid rgba(47,37,64,.25);
+  background: #fff;
+  color:#2f2540;
+  text-align:center;
+  font-weight:900;
+  font-size:14px;
+  outline:none;
+  padding:0;
+  -webkit-text-security: disc;
+}
+/* الموبايل نفسه مايقصش الهيدر */
+.phone{
+  overflow: visible;      /* مهم */
+  display:flex;
+  flex-direction: column;
+}
+
+/* الأبيض هو اللي يحتوي body + footer */
+.white-shell{
+  flex: 1;
+  min-height: 0;
+  display:flex;
+  flex-direction: column;
+  background:#fff;
+  border-radius: 28px;
+  overflow: hidden;       /* القص يكون هنا عشان الراديس */
+}
+
+/* محتوى الصفحة */
+.white-shell > .body,
+.white-shell > .finance-body{
+  flex: 1;
+  min-height: 0;
+  overflow: auto;         /* لو محتوى كتير يتسحب جوه الأبيض */
+  background: transparent;
+  border-radius: 0 !important;
+  padding: 14px 12px 10px;
+}
+
+/* الفوتر جوه الأبيض */
+.white-shell > .footer{
+  background: transparent !important;  /* يبقى أبيض */
+  margin: 0;
+  padding: 10px 12px 15px;
+}
+.topbar,
+.finance-topbar{
+  overflow: visible;
+  flex: 0 0 auto;
+}
+.white-shell1{
+  flex: 1;
+  min-height: 0;
+  display:flex;
+  flex-direction: column;
+  background:#fff;
+  overflow: hidden;       /* القص يكون هنا عشان الراديس */
+}
+
+/* محتوى الصفحة */
+.white-shell1 > .body,
+.white-shell1 > .finance-body{
+  flex: 1;
+  min-height: 0;
+  overflow: auto;         /* لو محتوى كتير يتسحب جوه الأبيض */
+  background: transparent;
+  border-radius: 0 !important;
+  padding: 14px 12px 10px;
+}
+
+/* الفوتر جوه الأبيض */
+.white-shell1 > .footer{
+  background: transparent !important;  /* يبقى أبيض */
+  margin: 0;
+  padding: 10px 12px 15px;
+}
+.topbar,
+.finance-topbar{
+  overflow: visible;
+  flex: 0 0 auto;
+}

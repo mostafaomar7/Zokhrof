@@ -1,6 +1,6 @@
 <div class="figma-page">
   <section class="phone">
-      <div class="side-dots" aria-hidden="true"></div>
+      <!-- <div class="side-dots" aria-hidden="true"></div> -->
 
     <!-- TOP BAR -->
     <header class="topbar">
@@ -33,7 +33,7 @@
         </div>
       </div>
     </header>
-
+<div class="white-shell">
     <!-- BODY -->
     <main class="body no-scrollbar">
       <div class="main-card">
@@ -134,13 +134,15 @@
       </button>
     </footer>
 
+</div>
+
   </section>
   <!-- PHONE 2 (الإدارة العامة) -->
 <section class="phone phone-empty">
-  <div class="side-dots left" aria-hidden="true"></div>
-  <div class="side-dots right" aria-hidden="true"></div>
-
-  <main class="empty-screen">
+  <!-- <div class="side-dots left" aria-hidden="true"></div>
+  <div class="side-dots right" aria-hidden="true"></div> -->
+  <div class="white-shell1">
+   <main class="empty-screen">
     <div class="empty-title">الإدارة العامة</div>
   </main>
 
@@ -172,18 +174,19 @@
       </svg>
     </button>
   </footer>
+  </div>
+
 </section>
 
 <!-- PHONE 3 (الإدارة العامة) -->
 <section class="phone phone-empty">
-  <div class="side-dots left" aria-hidden="true"></div>
-  <div class="side-dots right" aria-hidden="true"></div>
-
-  <main class="empty-screen">
-    <div class="empty-title">الإدارة العامة</div>
+  <!-- <div class="side-dots left" aria-hidden="true"></div>
+  <div class="side-dots right" aria-hidden="true"></div> -->
+  <div class="white-shell1">
+     <main class="empty-screen">
+    <!-- <div class="empty-title">الإدارة العامة</div> -->
   </main>
-
-  <footer class="footer">
+ <!-- <footer class="footer">
     <button class="footer-btn" type="button" aria-label="تحديث">
       <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -210,13 +213,17 @@
         <path d="M6 11h12v10H6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
       </svg>
     </button>
-  </footer>
+  </footer> -->
+  </div>
+
+
+
 </section>
 <!-- PHONE 4 (شؤون العاملين والمالية) -->
 <!-- PHONE 4 (شؤون العاملين والمالية) -->
 <section class="phone phone-finance">
   <!-- dots right -->
-  <div class="side-dots right" aria-hidden="true"></div>
+  <!-- <div class="side-dots right" aria-hidden="true"></div> -->
 
   <!-- ✅ الهيدر زي ما هو (بدون أي تعديل) -->
   <header class="finance-topbar">
@@ -289,9 +296,8 @@
       </div>
     </div>
   </header>
-
-  <!-- ✅ BODY (مفيش تكرار section هنا) -->
-  <main class="finance-body no-scrollbar">
+<div class="white-shell">
+<main class="finance-body no-scrollbar">
     <h1 class="f-title">شؤون العاملين والمالية</h1>
 
     <h2 class="f-sec-title">صندوق الوارد</h2>
@@ -388,6 +394,9 @@
       </svg>
     </button>
   </footer>
+</div>
+  <!-- ✅ BODY (مفيش تكرار section هنا) -->
+
   <!-- PAY MODAL -->
 <div class="modal-backdrop" *ngIf="isPayModalOpen" (click)="closePayModal()">
   <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">

@@ -1,0 +1,98 @@
+.footer-error{
+  margin: 0 12px 10px 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffe9e9;
+  color: #b00020;
+  font-size: 13px;
+}
+.footer-btn[disabled]{
+  opacity: .6;
+  pointer-events: none;
+}
+/* ACTION */
+.row-btn{
+  border:0;
+  background:#463853;
+  color:#fff;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 1px 1px;
+  border-radius: 6px;
+}
+
+/* FOOTER */
+/* الفوتر نفسه: مفيش خلفية كبيرة */
+.footer{
+  background: transparent;       /* ✅ زي الصورة */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* مجموعة الخانات */
+.footer-keys{
+  display:flex;
+  gap: 6px;
+  padding: 0;                   /* ✅ بدون كبسولة */
+  background: transparent;
+  border: 0;
+}
+
+/* الخانة */
+.key-input{
+  width: 21px;                  /* عدّلها لو عايز أكبر/أصغر */
+  height: 28px;
+  border-radius: 2px;
+  border: 1px solid rgba(47,37,64,.25);
+  background: #fff;           /* ✅ فاتح زي الصورة */
+  color: #2f2540;
+  text-align: center;
+  font-weight: 900;
+  font-size: 14px;
+  outline: none;
+  padding: 0;
+}
+
+/* فوكس */
+.key-input:focus{
+  border-color: rgba(63,47,80,.55);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(63,47,80,.12);
+}
+
+/* يخلي الدوت/النقطة تبان لو input type=password */
+.key-input{
+  -webkit-text-security: disc;   /* Safari/Chrome */
+}
+
+/* (اختياري) لو عايز النقطة أكبر شوية */
+.key-input{
+  letter-spacing: 1px;
+}
+
+/* لو بتستخدم inputmode numeric ومش type=number مفيش arrows أصلاً */
+
+/* منع أسهم input number */
+.key-input::-webkit-outer-spin-button,
+.key-input::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+.footer-btn{
+  border-radius: 3px;
+  border: 0;
+  background: #3F3F3F;
+  color: #fff;
+  padding: 6px 0px;
+}
+
+/* لو الأيقونة نفسها كانت بتتصغّر */
+.ic.sm{
+  width: 13px;
+  height: 13px;
+}
+.footer-btn{ width: 18px; height: 28px; }
+.ic.sm{ width: 15px; height: 15px; }

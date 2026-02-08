@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { PassKeyFooterComponent } from '../pass-key-footer/pass-key-footer';
+
 type RowItem = {
   name: string;
   code: string;
@@ -9,13 +9,12 @@ type RowItem = {
 };
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [CommonModule , PassKeyFooterComponent],
-  templateUrl: './home.html',
-  styleUrl: './home.css',
+  selector: 'app-after-pass-key-management',
+  imports: [CommonModule],
+  templateUrl: './after-pass-key-management.html',
+  styleUrl: './after-pass-key-management.css',
 })
-export class Home {
+export class AfterPassKeyManagement{
   // mock topbar
   notifications = 1;
   username = 'موظف 1';
@@ -59,8 +58,8 @@ export class Home {
   ];
 
   lettersOwner: RowItem[] = [
-    { name: 'مصنع غذائي كبير', code: 'MNF-25-GV-107', action: 'إرسال' },
-    { name: 'مدرسة إعدادية كبيرة', code: 'EDU-25-GV-333', action: 'إرسال' },
+    { name: 'مصنع غذائي كبير', code: 'MNF-25-GV-107', action: 'تسلـيم' },
+    { name: 'مدرسة إعدادية كبيرة', code: 'EDU-25-GV-333', action: 'تسلـيم' },
   ];
   lettersDesigner: RowItem[] = [{ name: 'مستشفى مركزي متوسط', code: 'HLT-25-GV-109', action: 'إرسال' }];
 

@@ -56,7 +56,7 @@
 .brand-badge h1{
   margin:0;
   color: var(--panel);
-  font-size: 34px;
+  font-size: 48px;
   font-weight: 800;
 }
 
@@ -71,20 +71,22 @@
 .subtitle{
   margin:0 0 18px 0;
   color:#fff;
-  font-size:20px;
+  font-size:24px;
   font-weight:600;
 }
 
 .login-btn{
   background: transparent;
   color:#fff;
-  border: 1.5px solid rgba(255,255,255,.85);
+  border: 1.5px solid #E6E9F7;
   border-radius: 8px;
   padding: 12px 44px;
   font-size:16px;
   font-weight:600;
   cursor:pointer;
   transition: .25s ease;
+  width: 318px;
+  font-family: "Cairo", system-ui, sans-serif;
 }
 .login-btn:hover{
   background:#fff;
