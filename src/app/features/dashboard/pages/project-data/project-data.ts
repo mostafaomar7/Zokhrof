@@ -1,11 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PassKeyFooterComponent } from '../pass-key-footer/pass-key-footer';
+interface ConsultItem {
+  code: string;
+  price: string;
+  time: string;
+  color: 'purple' | 'orange';
+}
+
+// تعريف واجهة للصف (مجموعة يمين ومجموعة يسار)
+interface ConsultRow {
+  right: ConsultItem[];
+  left: ConsultItem[];
+  center?: boolean; // جديد
+}
 
 @Component({
   selector: 'app-project-data',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule , PassKeyFooterComponent],
   templateUrl: './project-data.html',
   styleUrl: './project-data.css',
 })
@@ -13,20 +27,6 @@ export class ProjectData {
   private fb = inject(FormBuilder);
 
   isEdit = false;
-
-  toggleEdit() {
-    this.isEdit = !this.isEdit;
-    if (!this.isEdit) {
-      this.projectForm.markAsPristine();
-    }
-  }
-
-  save() {
-    // هنا هتربط API بعدين
-    this.isEdit = false;
-    this.projectForm.markAsPristine();
-  }
-
   activeTab: 'dash' | 'designer' | 'project' = 'project';
 
   projectForm = this.fb.group({
@@ -45,53 +45,101 @@ export class ProjectData {
     floors: this.fb.control(4),
   });
 
+  toggleEdit() {
+    this.isEdit = !this.isEdit;
+    if (!this.isEdit) this.projectForm.markAsPristine();
+  }
+
+  save() {
+    this.isEdit = false;
+    this.projectForm.markAsPristine();
+  }
+
   setValue<K extends keyof ProjectData['projectForm']['controls']>(key: K, val: any) {
     this.projectForm.controls[key].setValue(val);
     this.projectForm.markAsDirty();
   }
 
-  ganttMonths = Array.from({ length: 30 }, (_, i) => (i + 1).toString()); // 1..36
-ganttLines  = Array.from({ length: 30 }, () => 0);
+  // --- Logic for the Dot Chart ---
+  // Rows representing Y-axis values (5 down to 2)
+  chartRows = [5, 4, 3, 2];
+  // Columns 1 to 30
+  chartCols = Array.from({ length: 30 }, (_, i) => i + 1);
+chartXAxis = Array.from({ length: 30 }, (_, i) => i + 1);
+  // Helper to check if a specific dot should be colored
+  // This simulates the curve in the Figma image
+  getDotClass(row: number, col: number): string {
+    // Example logic to match the image curve roughly
+    // Green dots curve
+    if (row === 3 && col >= 4 && col <= 7) return 'dot-green';
+    if (row === 4 && col >= 8 && col <= 13) return 'dot-green';
+    if (row === 5 && col >= 14 && col <= 18) return 'dot-green';
+    
+    // Purple dot
+    if (row === 4 && col === 13) return 'dot-purple'; // Intersection/Special point
 
-// helper: build 36 cells with colored segment(s)
-private makeRow(seg: { g?: [number,number], y?: [number,number], p?: [number,number], b?: [number,number] }) {
-  const n = 36;
-  const row = Array.from({ length: n }, () => '');
-  const paint = (k: string, range?: [number,number]) => {
-    if(!range) return;
-    const [s,e] = range;        // 1-based indexes
-    for(let i=s; i<=e; i++){
-      if(i>=1 && i<=n) row[i-1] = k;
-    }
-  };
-  paint('g', seg.g);
-  paint('y', seg.y);
-  paint('p', seg.p);
-  paint('b', seg.b);
-  return row;
-}
-ganttY = [5,4,3,2,1,0];
-ganttX = Array.from({ length: 36 }, (_, i) => (i + 1).toString()); // 1..36
+    // Red dots (top right)
+    if (row === 5 && col >= 28) return 'dot-red';
 
-sqData: string[][] = [
-  this.row36([{ from: 1,  len: 2,  c: 'r' }]),   // row
-  this.row36([{ from: 3,  len: 3,  c: 'g' }]),
-  this.row36([{ from: 5,  len: 5,  c: 'g' }]),
-  this.row36([{ from: 8,  len: 9,  c: 'g' }]),
-  this.row36([{ from: 15, len: 1,  c: 'p' }]),
-  this.row36([{ from: 15, len: 12, c: 'c' }]),
-];
+    // Blue dots (start)
+    if (row === 2 && col <= 3) return 'dot-cyan';
 
-private row36(segs: { from: number; len: number; c: 'r'|'g'|'p'|'c' }[]) {
-  const n = 36;
-  const row = Array.from({ length: n }, () => '');
-  for (const s of segs) {
-    const start = Math.max(1, s.from);
-    const end = Math.min(n, s.from + s.len - 1);
-    for (let i = start; i <= end; i++) row[i - 1] = s.c;
+    return ''; // Default gray dot
   }
-  return row;
-}
+consultationRows: ConsultRow[] = [
+    // Row 1
+    {
+      right: [
+        { code: 'GIO', price: '100,30', time: '2,3', color: 'purple' },
+        { code: 'TOP', price: '100,30', time: '2,3', color: 'purple' },
+        { code: 'SRV', price: '100,30', time: '2,3', color: 'purple' }
+      ],
+      left: [
+        { code: 'ECO', price: '100,30', time: '2,3', color: 'purple' },
+        { code: 'PLN', price: '100,30', time: '2,3', color: 'purple' },
+        { code: 'ENV', price: '100,30', time: '2,3', color: 'purple' }
+      ]
+    },
+   // Row 2
+{
+  center: true,
+  right: [
+    { code: 'PRS', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'INT', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'LNS', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'IDP', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'IDD', price: '100,30', time: '2,3', color: 'purple' }
+  ],
+  left: []
+},
 
+// Row 3
+{
+  center: true,
+  right: [
+    { code: 'XTR', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'XTR', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'MEC', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'ELC', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'PLM', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'CVL', price: '100,30', time: '2,3', color: 'purple' },
+    { code: 'ARC', price: '100,30', time: '2,3', color: 'purple' }
+  ],
+  left: []
+},
 
+    // Row 4
+    {
+      right: [
+        { code: 'SMB', price: '100,30', time: '2,3', color: 'orange' },
+        { code: 'INV', price: '100,30', time: '2,3', color: 'orange' },
+        { code: 'SPR', price: '100,30', time: '2,3', color: 'orange' }
+      ],
+      left: [
+        { code: 'CON', price: '100,30', time: '2,3', color: 'purple' },
+        { code: 'SPS', price: '100,30', time: '2,3', color: 'purple' },
+        { code: 'QNT', price: '100,30', time: '2,3', color: 'purple' }
+      ]
+    }
+  ];
 }

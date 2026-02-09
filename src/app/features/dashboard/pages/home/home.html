@@ -34,7 +34,7 @@
       </div>
     </header>
 
-    <!-- BODY -->
+   <div class="phone-card">
     <main class="body no-scrollbar">
       <div class="main-card">
         <h2 class="main-title">الشؤون الإدارية والفنية</h2>
@@ -110,13 +110,15 @@
 </app-pass-key-footer>
 
 
+   </div>
+    
   </section>
   <!-- PHONE 2 (الإدارة العامة) -->
 <section class="phone1 phone-empty" >
   <!-- <div class="side-dots left" aria-hidden="true"></div>
   <div class="side-dots right" aria-hidden="true"></div> -->
-
-  <main class="empty-screen">
+   <div class="phone-card">
+    <main class="empty-screen">
     <div class="empty-title">الإدارة العامة</div>
 
   </main>
@@ -126,7 +128,8 @@
   redirectTo="/dashboard/project-data"
   [digits]="4">
 </app-pass-key-footer>
-
+   </div>
+  
 </section>
 
 <!-- PHONE 3 (الإدارة العامة) -->
@@ -218,8 +221,8 @@
 
   </div>
 </header>
-
-  <!-- BODY -->
+  <div class="phone-card">
+     <!-- BODY -->
   <main class="body no-scrollbar">
     <div class="main-card">
       <h2 class="main-title">شؤون العاملين والمالية</h2>
@@ -291,6 +294,8 @@
   redirectTo="/dashboard/pass-key"
   [digits]="4">
 </app-pass-key-footer>
+  </div>
+ 
 
 
 </section>

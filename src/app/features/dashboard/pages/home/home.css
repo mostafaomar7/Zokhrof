@@ -597,16 +597,72 @@ border-radius: 0;       /* ✅ مش عايزين راديس على الفون ك
   justify-content:center;
   gap: 8px;
 }
-.phone{
-  display: flex;
+.phone, .phone1{
+  width: 320px;
+  height: 92vh;
+  display:flex;
   flex-direction: column;
-  height: 92.5vh;        /* أو 100vh حسب تصميمك */
-  background: #fff;    /* لو الخلفية البيضا هنا */
-  border-radius: 24px; /* حسب تصميمك */
-  overflow: hidden;    /* يمنع أي حاجة تطلع برا */
+  overflow: hidden;
+  background: transparent;
 }
 
+/* الكارد الأبيض اللي هيشيل الـ body + footer */
+.phone-card{
+  flex: 1;
+  min-height: 0;
+  display:flex;
+  flex-direction: column;
+  background:#fff;
+  border-radius: 16px;
+  overflow:hidden; /* مهم عشان الراديس يبان */
+}
 .body{
-  flex: 1;             /* يخلي المحتوى يتمدد */
-  overflow: auto;      /* سكرول للمحتوى */
+  flex: 1;
+  min-height: 0;
+  overflow:auto;
+  padding: 14px 10px 10px; /* خلي padding طبيعي */
+  border-radius: 0;        /* الراديس يبقى للـ phone-card مش للـ body */
+}
+/* خليه دايمًا تحت */
+.phone-card > .footer{
+  margin-top: auto;
+  background:#fff;
+  padding: 10px 0 15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+  border-top: 1px solid rgba(47,37,64,.10); /* اختياري */
+}
+.panel{
+  background:#E6E9F7;
+  border-radius: 18px;
+  padding: 8px;
+  width: 100%;
+  max-width: 268px;
+  margin: 0 auto;   /* ✅ يتوسّط */
+}
+.panel-tab.active::after{
+  content:"";
+  position:absolute;
+  bottom:-2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64%;
+  height: 3px;
+  border-radius: 3px;
+  background:#463853;
+}
+:host ::ng-deep app-pass-key-footer{
+  display:block;
+}
+
+:host ::ng-deep app-pass-key-footer .footer{
+  margin-top:auto;
+  background:#fff;
+  padding: 10px 0 15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
 }

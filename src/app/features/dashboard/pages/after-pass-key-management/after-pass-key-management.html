@@ -103,35 +103,11 @@
       </div>
 
     </main>
-<footer class="footer">
-      <button class="footer-btn" type="button" aria-label="تحديث">
-        <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M20 4v6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-
-      <div class="footer-keys" aria-label="مفاتيح">
-  <input
-    *ngFor="let _ of passKeys; let i = index"
-    class="key-input"
-    type="password"
-    inputmode="numeric"
-    maxlength="1"
-    autocomplete="one-time-code"
-    (input)="onKeyInput($event, i)"
-    (keydown)="onKeyDown($event, i)"
-  />
-</div>
-
-
-      <button class="footer-btn" type="button" aria-label="قفل">
-        <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M6 11h12v10H6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </footer>
+<app-pass-key-footer
+  keyType="general_admin"
+  redirectTo="/dashboard/management-pass-key"
+  [digits]="4">
+</app-pass-key-footer>
 
 
   </section>
@@ -145,34 +121,11 @@
 
   </main>
 
-<footer class="footer">
-    <button class="footer-btn" type="button" aria-label="تحديث">
-      <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M20 4v6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-
-    <div class="footer-keys" aria-label="مفاتيح">
-      <input
-        *ngFor="let _ of passKeys; let i = index"
-        class="key-input"
-        type="password"
-        inputmode="numeric"
-        maxlength="1"
-        autocomplete="one-time-code"
-        (input)="onKeyInput($event, i)"
-        (keydown)="onKeyDown($event, i)"
-      />
-    </div>
-
-    <button class="footer-btn" type="button" aria-label="قفل">
-      <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M6 11h12v10H6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
-    </button>
-  </footer>
+<app-pass-key-footer
+  keyType="admin_technical_portal"
+  redirectTo="/dashboard/project-data"
+  [digits]="4">
+</app-pass-key-footer>
 </section>
 
 <!-- PHONE 3 (الإدارة العامة) -->
@@ -332,34 +285,11 @@
 
   </main>
 
-  <footer class="footer">
-    <button class="footer-btn" type="button" aria-label="تحديث">
-      <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M20 4v6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-
-    <div class="footer-keys" aria-label="مفاتيح">
-      <input
-        *ngFor="let _ of passKeys; let i = index"
-        class="key-input"
-        type="password"
-        inputmode="numeric"
-        maxlength="1"
-        autocomplete="one-time-code"
-        (input)="onKeyInput($event, i)"
-        (keydown)="onKeyDown($event, i)"
-      />
-    </div>
-
-    <button class="footer-btn" type="button" aria-label="قفل">
-      <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M6 11h12v10H6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
-    </button>
-  </footer>
+    <app-pass-key-footer
+  keyType="financial_control"
+  redirectTo="/dashboard/pass-key"
+  [digits]="4">
+</app-pass-key-footer>
 
 </section>
 

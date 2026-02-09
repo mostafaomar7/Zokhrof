@@ -597,3 +597,80 @@ border-radius: 0;       /* ✅ مش عايزين راديس على الفون ك
   justify-content:center;
   gap: 8px;
 }
+.panel{
+  background:#E6E9F7;
+  border-radius: 18px;
+  padding: 8px;
+  width: 100%;
+  max-width: 268px;
+  margin: 0 auto;   /* ✅ يتوسّط */
+}
+.panel-tab.active::after{
+  content:"";
+  position:absolute;
+  bottom:-2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64%;
+  height: 3px;
+  border-radius: 3px;
+  background:#463853;
+}
+/* =========================
+   1) كل Phone Layout ثابت
+========================= */
+.phone, .phone1{
+  width: 320px;
+  height: 92vh;
+  display:flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* BODY جوه phone */
+.phone > .body,
+.phone1 > .body{
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+  border-radius: 16px 16px 0 0; /* فوق فقط */
+  padding: 14px 10px 0;         /* شيل padding-bottom عشان الفوتر يكمل */
+}
+
+/* =========================
+   2) الفوتر (اللي هو app-pass-key-footer)
+   يبقى جوه الأبيض + نفس المستوى
+========================= */
+.phone > app-pass-key-footer,
+.phone1 > app-pass-key-footer{
+  display:block;
+  margin-top: auto;             /* ✅ ينزل لتحت */
+  background: #fff;             /* ✅ يكمل الأبيض */
+  padding: 10px 0 15px;         /* ✅ نفس المسافة لكلهم */
+}
+
+/* لو الكمبوننت جوه عنصر داخلي اسمه .footer وتحتاج تظبطه */
+:host ::ng-deep app-pass-key-footer .footer{
+  margin: 0;
+  background: transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+}
+/* خلي الصف كله يبدأ من فوق */
+.figma-page{
+  align-items: flex-start;   /* بدل ما يبقى في سنترة عمودية */
+}
+
+/* الاتنين اللي في النص */
+.phone.phone-empty{
+  margin-top: -10px;         /* نفس قيمة padding بتاع .figma-page (عشان يلزقوا فوق الشاشة) */
+}
+
+/* شيل الراديس نهائيًا من الأبيض */
+.phone.phone-empty .white-shell1{
+  border-radius: 0 !important;
+}

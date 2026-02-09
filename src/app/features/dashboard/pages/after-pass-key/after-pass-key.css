@@ -1081,7 +1081,7 @@ section{
 
 .phone{
   width: 320px;
-  height: 92vh;
+  height: 90vh;
   display:flex;
   flex-direction: column;
   direction: rtl;
@@ -1376,4 +1376,64 @@ section{
 .finance-topbar{
   overflow: visible;
   flex: 0 0 auto;
+}
+/* 1) ثبات ارتفاع كل الموبايلات */
+.phone, .phone1{
+  width: 320px;
+  height: 90vh;          /* ✅ خليها قيمة واحدة بس */
+  display:flex;
+  flex-direction: column;
+  background: transparent;
+  overflow: visible;      /* الهيدر بره الأبيض */
+}
+
+/* 2) الهيدر مايتحسبش ضمن الأبيض */
+.topbar, .finance-topbar{
+  flex: 0 0 auto;
+}
+
+/* 3) الأبيض ياخد باقي المساحة (هو اللي يحدد مكان الفوتر) */
+.white-shell, .white-shell1{
+  flex: 1;
+  min-height: 0;
+  display:flex;
+  flex-direction: column;
+  background:#fff;
+  border-radius: 28px;
+  overflow: hidden;
+}
+
+/* 4) المحتوى scroll جوه الأبيض */
+.white-shell > .body,
+.white-shell > .finance-body,
+.white-shell1 > .empty-screen{
+  flex: 1;
+  min-height: 0;
+  overflow:auto;
+  background: transparent;
+  padding: 14px 12px 0;      /* ✅ بدون padding تحت */
+}
+
+/* 5) الفوتر دايمًا آخر الأبيض وبنفس الارتفاع/المسافة */
+.white-shell > app-pass-key-footer,
+.white-shell1 > app-pass-key-footer{
+  margin-top: auto;          /* ✅ ده اللي يخليهم على نفس السطر */
+  padding: 10px 12px 15px;   /* ✅ ثابت */
+  background: transparent;
+  display:block;
+}
+/* خلي الصف كله يبدأ من فوق */
+.figma-page{
+  align-items: flex-start;   /* بدل ما يبقى في سنترة عمودية */
+}
+
+/* الاتنين اللي في النص */
+.phone.phone-empty{
+  margin-top: -10px;   
+  height: 92.4vh;      /* نفس قيمة padding بتاع .figma-page (عشان يلزقوا فوق الشاشة) */
+}
+
+/* شيل الراديس نهائيًا من الأبيض */
+.phone.phone-empty .white-shell1{
+  border-radius: 0 !important;
 }

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { PassKeyFooterComponent } from '../pass-key-footer/pass-key-footer';
 
 type RowItem = {
   name: string;
@@ -10,7 +11,7 @@ type RowItem = {
 
 @Component({
   selector: 'app-after-pass-key-management',
-  imports: [CommonModule],
+  imports: [CommonModule , PassKeyFooterComponent],
   templateUrl: './after-pass-key-management.html',
   styleUrl: './after-pass-key-management.css',
 })

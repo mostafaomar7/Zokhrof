@@ -1,3 +1,29 @@
+/* =========================
+   Base
+========================= */
+*{ font-family: 'Cairo', sans-serif; box-sizing: border-box; }
+
+:host{
+  --border:#ddd;
+  --shadow: 0 8px 22px rgba(0,0,0,.06);
+  --header-bg:#f2f0f7;
+
+  --bg:#f6f7fb;
+  --text:#111827;
+  --muted:#9aa0a6;
+
+  --green:#22c55e;
+  --ring:#2e7d32;
+
+  --active-yellow:#FFF600;
+  --tab-ink:#6b7280;
+  --tab-underline:#6b7280;
+  --accent:#6b7280;
+}
+
+/* =========================
+   Top Nav
+========================= */
 .pd-nav{
   position: sticky;
   top: -6px;
@@ -5,35 +31,27 @@
   height: 113px;
   position: relative;
   overflow: visible;
+
+  /* vars */
+  --btn-drop: 15px;
+  --btn-inset: clamp(340px, 10vw, 290px);
 }
 
-/* الخلفية */
 .pd-nav-bg{
   position:absolute;
   width: 100%;
   overflow:hidden;
   z-index: 1;
 }
-.pd-nav-bg svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
+.pd-nav-bg svg{ width: 100%; height: 100%; display:block; }
 
-/* خلي العنوان في النص بسهولة */
 .pd-nav-content{
   position:absolute;
   inset: 0;
   z-index: 2;
 }
 
-/* ✅ متغيرات سهلة تزبط بيها مكان الزراير */
-.pd-nav{
-  --btn-drop: 15px;                 /* نزول لتحت */
-  --btn-inset: clamp(290px, 10vw, 180px); /* دخول لجوه (ده اللي عند الأحمر) */
-}
-
-/* العنوان في النص */
+/* Brand */
 .pd-brand{
   position:absolute;
   left: 50%;
@@ -44,29 +62,19 @@
   line-height: 1.1;
 }
 
-/* ✅ حفظ شمال تحت بداية المنحنى */
-.pd-save{
-  position:absolute;
-  left: var(--btn-inset);
-  bottom: calc(-1 * var(--btn-drop));
-  border:0;
-  background: transparent;
-  padding:0;
-  cursor:pointer;
-}
-
-/* ✅ تعديل يمين تحت بداية المنحنى */
+/* Buttons */
+.pd-save,
 .pd-edit{
   position:absolute;
-  right: var(--btn-inset);
   bottom: calc(-1 * var(--btn-drop));
   border:0;
   background: transparent;
   padding:0;
   cursor:pointer;
 }
+.pd-save{ left: var(--btn-inset); }
+.pd-edit{ right: var(--btn-inset); }
 
-/* مقاس الـ SVG */
 .pd-save-ic,
 .pd-edit-ic{
   display:block;
@@ -74,63 +82,53 @@
   height: 88px;
 }
 .pd-save-ic svg,
-.pd-edit-ic svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-/* تنسيق الجسم الرئيسي */
-.pd-body {
+.pd-edit-ic svg{ width: 100%; height: 100%; display:block; }
+
+/* =========================
+   Layout Body
+========================= */
+.pd-body{
   display: grid;
-  grid-template-columns: 290px 1fr 280px; /* Sidebar - Main - Sidebar */
+  grid-template-columns: 290px 1fr 350px; /* Sidebar - Main - Sidebar */
   gap: 20px;
   padding: 10px;
-  direction: rtl; /* عشان يظبط الاتجاه العربي */
-  background-color: #f8f9fa; /* لون خلفية خفيف */
+  direction: rtl;
+  background: #f8f9fa;
   min-height: 100vh;
-}
-
-:root{
-  --border:#e9edf5;
-  --shadow: 0 8px 22px rgba(0,0,0,.06);
-  --header-bg:#f2f0f7;
-  --text:#111827;
-  --muted:#6b7280;
-  --green:#22c55e;
-  --ring:#2e7d32;
 }
 
 .pd-sidebar{ width: 300px; }
 
+/* =========================
+   Employee Card
+========================= */
 .emp-card{
   background:#fff;
   border:1px solid var(--border);
   box-shadow: var(--shadow);
-  border-radius: 18px;
+  border-radius: 10px;
   overflow:hidden;
+  padding : 2px;
+  z-index: 222222;
 }
-
-/* HEADER */
 .emp-header{
-  background: var(--header-bg);
+  background: #F1F0F7;
   padding: 16px;
   position: relative;
 }
 
-/* الموظف 1 على اليمين */
 .emp-badge{
   position:absolute;
   top: 10px;
-  right: 0px;
+  right: 0;
   background:#ededf3;
   border:1px solid #e1e2ea;
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
-  color:#111827;
+  color: var(--text);
 }
 
-/* top layout */
 .emp-top{
   display:flex;
   align-items:flex-start;
@@ -139,7 +137,6 @@
   padding-top: 18px;
 }
 
-/* text on the right */
 .emp-info{
   flex: 1;
   min-width: 0;
@@ -156,11 +153,10 @@
   color: var(--text);
 }
 
-/* status: icon RIGHT of text */
 .emp-status{
   display:flex;
   align-items:center;
-  justify-content: flex-start; /* RTL => يمين */
+  justify-content: flex-start;
   gap: 8px;
   color: var(--green);
   font-weight: 900;
@@ -168,21 +164,15 @@
 }
 .status-ico{ color: var(--green); }
 
-/* phone/email: icon RIGHT of text */
 .emp-line{
   display:flex;
   align-items:center;
-  justify-content: flex-start; /* RTL => يمين */
+  justify-content: flex-start;
   gap: 10px;
   font-size: 12px;
   color:#374151;
 }
-
-.line-text{
-  overflow:hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+.line-text{ overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .line-ico{
   width: 26px;
@@ -196,7 +186,6 @@
   flex: 0 0 auto;
 }
 
-/* avatar on the LEFT */
 .emp-avatar{
   width: 54px;
   height: 54px;
@@ -209,20 +198,18 @@
   flex: 0 0 auto;
 }
 
-/* divider */
 .emp-divider{ height:1px; background:#e7e9f2; }
 
-/* BODY */
 .emp-body{
   padding: 14px 16px 16px;
   background:#fff;
 }
 
-/* title: star on the RIGHT then text (RTL) */
+/* Rating */
 .rate-title{
   display:flex;
   align-items:center;
-  justify-content:flex-start; /* RTL => يمين */
+  justify-content:flex-start;
   gap: 8px;
   margin-bottom: 12px;
   font-weight: 900;
@@ -230,14 +217,12 @@
 }
 .rate-text{ font-size: 14px; }
 
-/* grid */
 .rate-grid{
   display:flex;
   align-items:flex-start;
   gap: 16px;
 }
 
-/* list */
 .rate-list{
   list-style:none;
   padding:0;
@@ -284,7 +269,7 @@
   font-weight: 800;
 }
 
-/* overall */
+/* Ring */
 .overall{
   width: 140px;
   display:flex;
@@ -298,26 +283,17 @@
   color:#111827;
 }
 .ring{
-  --p: 95;              /* من 0 إلى 100 */
+  --p: 95;
   --th: 10px;
 
   width: 110px;
   height: 110px;
   border-radius: 50%;
-
-  /* الدائرة الخضراء */
-  background:
-    conic-gradient(
-      #2e7d32 calc(var(--p) * 1%),
-      #e5e7eb 0
-    );
-
+  background: conic-gradient(var(--ring) calc(var(--p) * 1%), #e5e7eb 0);
   display: grid;
   place-items: center;
   position: relative;
 }
-
-/* الدائرة الداخلية البيضاء */
 .ring::before{
   content: "";
   position: absolute;
@@ -325,8 +301,6 @@
   background: #fff;
   border-radius: 50%;
 }
-
-/* الرقم */
 .ring-val{
   position: relative;
   font-size: 22px;
@@ -334,24 +308,9 @@
   color: #1f2937;
 }
 
-@media (max-width: 420px){
-  .pd-sidebar{ width: 100%; }
-  .rate-grid{ flex-direction: column; }
-  .overall{ width: 100%; }
-}
-
-:root{
-  --border:#dfe3ee;
-  --bg:#f6f7fb;
-  --card:#ffffff;
-  --text:#111827;
-  --muted:#9aa0a6;
-
-  --active-yellow:#ffe600;     /* أصفر الفيجما */
-  --tab-active:#6b7280;        /* لون تبويب الفيجما */
-  --tab-active-underline:#6b7280;
-}
-
+/* =========================
+   Main Content + Sections
+========================= */
 .pd-main-content{
   background: var(--bg);
   padding: 14px;
@@ -365,10 +324,12 @@
   padding: 10px;
 }
 
+.pd-section-white--mt{ margin-top: 20px; }
+
 /* Tabs */
 .tabs-header{
   display:flex;
-  justify-content:flex-start; /* RTL => يمين */
+  justify-content:flex-start;
   gap: 22px;
   border-bottom: 1px solid #eee;
   padding: 10px 12px;
@@ -386,9 +347,7 @@
   font-size: 14px;
 }
 
-.tab.active{
-  color: var(--tab-active);
-}
+.tab.active{ color: var(--tab-ink); }
 .tab.active::after{
   content:"";
   position:absolute;
@@ -396,7 +355,7 @@
   inset-inline-end:0;
   bottom:-12px;
   height: 2px;
-  background: var(--tab-active-underline);
+  background: var(--tab-underline);
   border-radius: 2px;
 }
 
@@ -411,15 +370,19 @@
   text-align: center;
 }
 
-/* Grid (نفس صف الفيجما) */
+/* =========================
+   Project Details Grid
+========================= */
 .project-details-grid{
-  display:grid;
-  grid-template-columns: 1fr 1.1fr 1.1fr 1.2fr 1fr 1.25fr;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 14px;
-  align-items:start;
+  align-items: start;
+  grid-auto-flow: row dense;
 }
+.project-details-grid > .field{ min-width: 0; }
 
-/* Titles */
+/* labels */
 .field-label{
   display:block;
   text-align:center;
@@ -429,7 +392,7 @@
   margin-bottom: 8px;
 }
 
-/* vertical stacks */
+/* stack */
 .stack{
   display:flex;
   flex-direction: column;
@@ -440,260 +403,108 @@
 .chip{
   width: 100%;
   height: 34px;
-  border-radius: 10px;
+  border-radius: 7px;
   border: 1px solid var(--border);
   background:#fff;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight: 900;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 12px;
   color:#111;
   cursor:pointer;
 }
-
-/* ✅ الأصفر للـ Active */
 .chip.is-active{
   background: var(--active-yellow);
-  border-color: #e6d200;
+  border: 2px solid #FFAD14;
 }
 
-/* big sector */
 .chip--big{
   height: 78px;
   flex-direction: column;
   gap: 8px;
 }
-.chip-big-text{
-  font-size: 22px;
-  letter-spacing: 1px;
-}
-.chip-big-arrow{
-  font-size: 14px;
-  opacity: .7;
+.chip-big-text{ font-size: 22px; letter-spacing: 1px; }
+.chip-big-arrow{ font-size: 14px; opacity: .7; }
+
+/* area (من/الى) */
+.field.area--2{ grid-column: span 2; }
+
+.area-two{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
 }
 
-/* Area vertical */
-.area-stack{
-  display:flex;
+.area-col{
+  display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
 }
-.area-box{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  justify-content:flex-start;
-}
-.area-label{
-  font-weight: 900;
-  font-size: 12px;
-  color:#111;
-  min-width: 22px;
-}
+.area-col .field-label{ margin-bottom: 0; }
 
 .area-input{
-  flex: 1;
+  width: 100%;
+  min-width: 0;
   height: 34px;
-  border-radius: 10px;
+  border-radius: 4px;
   border: 1px solid var(--border);
   background:#fff;
   display:flex;
   align-items:center;
   gap: 8px;
-  padding: 0 10px;
+  padding: 4px 5px;
 }
-
-/* ✅ الأصفر للـ Active area */
 .area-input.is-active{
   background: var(--active-yellow);
   border-color: #e6d200;
 }
 
 .area-input .unit{
-  font-size: 12px;
+  font-size: 10px;
   color:#111;
-  font-weight: 900;
+  font-weight: 600;
 }
 .area-input .num{
-  font-size: 13px;
-  font-weight: 900;
+  font-size: 10px;
+  font-weight: 600;
   color:#111;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Responsive */
-@media (max-width: 980px){
-  .project-details-grid{ grid-template-columns: 1fr 1fr; }
-}
-:host{
-  --border:#dfe3ee;
-  --active-yellow:#ffe600;
-  --tab-ink:#6b7280;
-  --tab-muted:#9aa0a6;
-  --accent:#6b7280;
-}
+/* ترتيب الأعمدة */
+.field.owner        { grid-column: 1; }
+.field.sector       { grid-column: 2; }
+.field.project-type { grid-column: 3; }
+.field.project-name { grid-column: 4; }
+.field.size         { grid-column: 5; }
+.field.area--2      { grid-column: 6 / 8; } /* عمود 6 و7 */
 
-.pd-section-white{
-  background:#fff;
-  border:1px solid #e6e8ef;
-  border-radius: 18px;
-  padding: 10px;
-}
-
-/* Tabs */
-.tabs-header{
-  display:flex;
-  justify-content:flex-start; /* RTL => يمين */
-  gap: 22px;
-  border-bottom: 1px solid #eee;
-  padding: 10px 12px;
-  align-items: center;
-}
-
-.tab{
-  background: transparent;
-  border:0;
-  cursor:pointer;
-  font-weight: 900;
-  color: var(--tab-muted);
-  padding: 6px 0;
-  position: relative;
-  font-size: 14px;
-}
-
-.tab.active{
-  color: var(--tab-ink);
-}
-.tab.active::after{
-  content:"";
-  position:absolute;
-  inset-inline-start:0;
-  inset-inline-end:0;
-  bottom:-12px;
-  height: 2px;
-  background: var(--accent);
-  border-radius: 2px;
-}
-
-.tabs-panels{ padding: 12px; }
-.panel-placeholder{
-  padding: 16px;
-  border: 1px dashed #d8dbe6;
-  border-radius: 14px;
-  color: #6b7280;
-  font-weight: 700;
-  text-align: center;
-}
-
-/* Grid */
-.project-details-grid{
-  display:grid;
-  grid-template-columns: 1fr 1.1fr 1.1fr 1.2fr 1fr 1.25fr;
-  gap: 14px;
-  align-items:start;
-}
-
-.field-label{
-  display:block;
-  text-align:center;
-  font-weight: 900;
-  color:#111;
-  font-size: 12px;
-  margin-bottom: 8px;
-}
-
-.stack{
-  display:flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.chip{
-  width: 100%;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight: 900;
-  font-size: 13px;
-  color:#111;
-  cursor:pointer;
-}
-
-/* ✅ هنا بنقفلها: الأصفر لازم يطلع مهما حصل */
-.chip.is-active{
-  background: var(--active-yellow) !important;
-  border-color: #e6d200 !important;
-}
-
-.chip--big{
-  height: 78px;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.chip-big-text{ font-size: 22px; letter-spacing: 1px; }
-.chip-big-arrow{ font-size: 14px; opacity: .7; }
-
-.area-stack{
-  display:flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.area-box{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  justify-content:flex-start;
-}
-
-.area-label{
-  font-weight: 900;
-  font-size: 12px;
-  color:#111;
-  min-width: 22px;
-}
-
-.area-input{
-  flex: 1;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background:#fff;
-  display:flex;
-  align-items:center;
-  gap: 8px;
-  padding: 0 10px;
-}
-
-/* ✅ نفس الفكرة للأصفر */
-.area-input.is-active{
-  background: var(--active-yellow) !important;
-  border-color: #e6d200 !important;
-}
-
-.area-input .unit{ font-size: 12px; font-weight: 900; color:#111; }
-.area-input .num{ font-size: 13px; font-weight: 900; color:#111; }
-
-@media (max-width: 980px){
-  .project-details-grid{ grid-template-columns: 1fr 1fr; }
-}
-/* ======= Bottom Grid: INDICATORS bigger (RIGHT) ======= */
+/* =========================
+   Bottom Grid (Indicators + Timeline)
+========================= */
 .bottom-grid{
   display: flex;
   justify-content: space-between;
   width: 100%;
 }
+
 .timeline-card{
   background:#fff;
   border:1px solid var(--border);
   border-radius: 18px;
   padding: 12px;
-  width: 40%;}
+  width: 40%;
+}
+
+.indicators-card{
+  padding: 12px;
+  width: 60%;
+}
 
 .bottom-card__title{
   font-weight: 900;
@@ -703,11 +514,7 @@
   text-align: right;
 }
 
-/* ===== Indicators (Right) ===== */
-.indicators-card{ padding: 12px; 
-
-width: 60%;}
-
+/* Indicators */
 .ind-wrap{
   border:1px solid #e6e8ef;
   border-radius: 16px;
@@ -731,7 +538,7 @@ width: 60%;}
 .ind-row-line{
   display:flex;
   align-items:center;
-  justify-content:flex-start; /* RTL => يمين */
+  justify-content:flex-start;
   gap: 14px;
 }
 
@@ -749,16 +556,8 @@ width: 60%;}
   font-weight: 900;
   color:#111;
 }
-
-.ind-inline .val{
-  font-weight: 900;
-  font-size: 13px;
-}
-.ind-inline .unit{
-  font-weight: 900;
-  font-size: 11px;
-  color:#6b7280;
-}
+.ind-inline .val{ font-weight: 900; font-size: 13px; }
+.ind-inline .unit{ font-weight: 900; font-size: 11px; color:#6b7280; }
 
 .ind-text{
   font-size: 12px;
@@ -773,7 +572,7 @@ width: 60%;}
   margin: 14px 0;
 }
 
-/* ===== Timeline Squares (Left) ===== */
+/* Timeline squares */
 .sq-gantt{
   border:1px solid #e6e8ef;
   border-radius: 16px;
@@ -814,11 +613,10 @@ width: 60%;}
   border: 1px solid #e8eaf2;
 }
 
-/* colors حسب كلامك */
-.sq.r{ background:#e11d48; border-color:#e11d48; }  /* أحمر */
-.sq.g{ background:#22c55e; border-color:#22c55e; }  /* أخضر */
-.sq.p{ background:#7c3aed; border-color:#7c3aed; }  /* بنفسجي */
-.sq.c{ background:#06b6d4; border-color:#06b6d4; }  /* لبني */
+.sq.r{ background:#e11d48; border-color:#e11d48; }
+.sq.g{ background:#22c55e; border-color:#22c55e; }
+.sq.p{ background:#7c3aed; border-color:#7c3aed; }
+.sq.c{ background:#06b6d4; border-color:#06b6d4; }
 
 .sq-x{
   position:absolute;
@@ -834,7 +632,756 @@ width: 60%;}
 }
 .sq-x span{ text-align:center; }
 
-/* responsive */
+/* =========================
+   Responsive
+========================= */
 @media (max-width: 980px){
-  .bottom-grid{ grid-template-columns: 1fr; }
+  .project-details-grid{ grid-template-columns: 1fr 1fr; }
+  .bottom-grid{ flex-direction: column; gap: 12px; }
+  .timeline-card, .indicators-card{ width: 100%; }
+}
+
+@media (max-width: 420px){
+  .pd-sidebar{ width: 100%; }
+  .rate-grid{ flex-direction: column; }
+  .overall{ width: 100%; }
+}
+.field-label{
+  font-size: 11px !important;
+  font-weight: 700;
+}
+/* =========================
+   Bottom Grid Layout
+========================= */
+/* =========================
+   Bottom Grid Layout (Compact Version)
+========================= */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr; 
+  gap: 12px;
+  align-items: stretch;
+  direction: rtl;
+  /* تحديد ارتفاع ثابت وصغير كما في الصورة الأخيرة */
+  height: 150px; 
+}
+
+/* =========================
+   Right Column: Indicator Cards
+========================= */
+.inputs-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  height: 100%;
+}
+
+.ind-card {
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  /* تقليل الحشو الداخلي جداً ليناسب الارتفاع الصغير */
+  padding: 0 12px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1; /* يتقاسم المساحة بالتساوي */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+/* Title Section */
+.card-title-section {
+  width: 30%;
+  text-align: right;
+  border-left: 1px solid #F3F4F6;
+  padding-left: 8px;
+  display: flex;
+  align-items: center;
+  height: 70%;
+}
+
+.card-main-title {
+  font-size: 12px; /* تصغير الخط */
+  font-weight: 900;
+  color: #111;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Content Section */
+.card-content-section {
+  width: 68%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* تقليل المسافة بين السطور */
+  justify-content: center;
+}
+
+.content-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.row-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #374151;
+  text-align: right;
+  flex: 1;
+}
+
+.custom-input {
+  width: 50px; /* عرض أصغر */
+  height: 24px; /* ارتفاع أصغر للحقل */
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  margin-right: 8px;
+}
+
+.custom-input .curr {
+  font-size: 9px;
+  font-weight: 700;
+  color: #9CA3AF;
+}
+
+.custom-input .val {
+  font-size: 11px;
+  font-weight: 800;
+  color: #111;
+  flex: 1;
+  text-align: right;
+}
+.custom-input .val.center-text { text-align: center; }
+
+/* =========================
+   Left Column: Chart
+========================= */
+/* =========================
+   Left Column: Chart (Compact with X-Axis)
+========================= */
+.chart-column {
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 10px 15px 5px 15px; /* تقليل البادينج السفلي */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* 190px */
+  overflow: hidden; 
+}
+
+.chart-header {
+  text-align: right;
+  margin-bottom: 5px;
+  flex-shrink: 0;
+}
+
+.chart-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #111;
+  margin: 0;
+}
+
+.chart-body {
+  flex: 1; /* يأخذ المساحة المتبقية */
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2px; /* مسافة صغيرة جداً قبل محور السينات */
+}
+
+.chart-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 3px 0; /* ضبط محاذاة الأرقام مع النقاط */
+  font-size: 9px;
+  font-weight: 700;
+  color: #6B7280;
+}
+
+.chart-grid-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+}
+
+.grid-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 25%;
+}
+
+.grid-cell {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #F3F4F6;
+}
+.dot-green { background-color: #22C55E; }
+.dot-purple { background-color: #A855F7; }
+.dot-red { background-color: #EF4444; }
+.dot-cyan { background-color: #06B6D4; }
+
+/* إظهار محور السينات (X-Axis) */
+.chart-x-axis {
+  display: flex; /* إعادة العرض */
+  justify-content: space-between;
+  border-top: 1px solid #F3F4F6;
+  padding-top: 4px;
+  margin-top: 0;
+  margin-right: 18px; /* تعويض مساحة محور الصادات (Y-Axis) لضبط المحاذاة */
+  flex-shrink: 0; /* منع الانكماش والاختفاء */
+  height: 18px; /* ارتفاع ثابت لضمان الظهور */
+}
+
+.chart-x-axis span {
+  font-size: 7px; /* خط صغير جداً ليناسب المساحة الضيقة */
+  font-weight: 700;
+  color: #9CA3AF;
+  width: 100%;
+  text-align: center;
+  display: inline-block;
+}
+/* =========================
+   Consultation Section (Figma Layout)
+========================= */
+.sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 25px;
+  padding: 0 5px;
+   flex-direction: row-reverse;
+}
+
+.sec-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: #111;
+  margin: 0;
+}
+
+.sec-icon {
+  width: 26px;
+  height: 26px;
+  background: #EBEBEB;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #374151;
+}
+
+/* =========================
+   Consultation Section (Fix)
+========================= */
+
+/* العنوان + الأيقونة يمين */
+.sec-header{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  margin-bottom:25px;
+  padding:0 5px;
+  flex-direction: row-reverse; /* icon right */
+}
+
+/* الكونتينر لازم يكون عمودي (Rows تحت بعض) */
+.consult-container{
+  display:flex;
+  flex-direction: column;     /* ✅ مهم جداً */
+  gap:30px;                   /* مسافة بين الصفوف */
+  align-items:center;
+  padding-bottom: 20px;
+  direction: ltr;             /* عشان ترتيب الجروبات مايتقلبش */
+  width: 100%;
+}
+
+/* كل صف: جروب يمين + جروب يسار */
+.consult-row{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  gap:60px;                   /* الفجوة الكبيرة في النص */
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+/* الصفوف اللي في النص (Row2, Row3) */
+.consult-row.is-center{
+  gap:0;                      /* مفيش فجوة وسط */
+}
+
+/* الجروبات */
+.c-group{
+  display:flex;
+  gap:15px;
+  flex-wrap: nowrap;
+}
+
+.c-group-center{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap: nowrap;
+}
+
+.c-group-right{ justify-content:flex-end; }
+.c-group-left{  justify-content:flex-start; }
+
+/* الكارت */
+.consult-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  width:75px;
+}
+
+/* badge */
+.c-badge{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-weight:700;
+  font-size:13px;
+  color:#fff;
+  box-shadow:0 4px 8px rgba(0,0,0,0.1);
+  margin-bottom:4px;
+}
+.c-badge.purple{ background:#734E97; }
+.c-badge.orange{ background:#E29300; }
+
+/* inputs */
+.c-inputs{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  width:100%;
+}
+
+.c-line{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  direction:ltr;              /* ✅ يثبت LYD/شهر على الشمال */
+}
+
+.c-lbl{
+  font-size:10px;
+  font-weight:800;
+  color:#4B5563;
+  width:20px;
+}
+
+.c-box{
+  background:#fff;
+  border:1px solid #E5E7EB;
+  border-radius:6px;
+  height:24px;
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:800;
+  color:#111;
+  box-shadow:0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* موبايل */
+@media (max-width: 768px){
+  .consult-row{
+    flex-direction:column;
+    gap:20px;
+  }
+  .c-group, .c-group-center{
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+}
+/* =========================
+   Summary Card (Top)
+========================= */
+.sum-card{
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.sum-row{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.sum-divider{
+  height: 1px;
+  background: #EEF0F5;
+  margin: 10px 0;
+}
+
+.sum-item{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+}
+
+.sum-text{
+  text-align: right;
+  min-width: 0;
+}
+
+.sum-title{
+  font-size: 12px;
+  font-weight: 500;
+  color: #111;
+  line-height: 1.2;
+}
+
+.sum-sub{
+  font-size: 12px;
+  font-weight: 500;
+  color: #111;
+  opacity: .85;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.sum-input{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.sum-unit{
+  font-size: 11px;
+  font-weight: 900;
+  color: #111;
+  white-space: nowrap;
+}
+
+.sum-field{
+  width: 59px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid #E6E6E6;
+  background: #F2F2F2;
+  padding: 0 10px;
+  font-weight: 900;
+  font-size: 13px;
+  color: #111;
+  outline: none;
+  text-align: center;
+}
+
+/* =========================
+   Bank Section
+========================= */
+.bank-sec{
+  margin-top: 14px;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  background: #fff;
+  padding: 12px;
+}
+
+.bank-head{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bank-title{
+  font-size: 14px;
+  font-weight: 900;
+  color: #111;
+}
+
+.bank-ico{
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #EBEBEB;
+  display: grid;
+  place-items: center;
+  color: #111;
+}
+
+.bank-row{
+  padding: 10px 0;
+}
+
+.bank-row + .bank-row{
+  border-top: 1px solid #EEF0F5;
+}
+
+.bank-tag{
+  font-size: 12px;
+  font-weight: 800;
+  color: #111;
+  text-align: right;
+  margin-bottom: 8px;
+}
+
+/* 3 inputs: Name / Account / IBAN */
+.bank-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr 160px;
+  gap: 14px;
+  align-items: end;
+}
+
+.bank-field{
+  min-width: 0;
+}
+
+.bank-label{
+  display: block;
+  text-align: right;
+  font-size: 11px;
+  font-weight: 500;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.bank-input{
+  width: 100%;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+  background: #fff;
+  padding: 0 10px;
+  font-weight: 800;
+  font-size: 13px;
+  color: #111;
+  outline: none;
+  text-align: center;
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 980px){
+  .sum-row{
+    grid-template-columns: 1fr;
+  }
+  .bank-grid{
+    grid-template-columns: 1fr;
+  }
+  .sum-item{
+    justify-content: space-between;
+  }
+  .sum-field{
+    width: 120px;
+  }
+}
+/* =========================
+   App Subscriptions
+========================= */
+.app-head{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  margin: 4px 6px 10px;
+  flex-direction: row-reverse; /* icon right */
+}
+
+.app-title{
+  font-size: 14px;
+  font-weight: 900;
+  color:#111;
+}
+
+.app-ico{
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #EBEBEB;
+  display:grid;
+  place-items:center;
+  color:#111;
+}
+
+/* outer box that contains 2 inner cards */
+.app-wrap{
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  background: #fff;
+  padding: 12px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* inner cards */
+.app-card{
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px 14px;
+}
+
+.app-card-title{
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  color:#111;
+  margin-bottom: 12px;
+}
+
+/* rows */
+.app-rows{
+  display:flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.app-row{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.app-row-label{
+  font-size: 12px;
+  font-weight: 500;
+  color:#111;
+  white-space: nowrap;
+}
+
+/* input group (unit + LYD + field) */
+.app-row-input{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  flex: 0 0 auto;
+  direction: ltr; /* يثبت ترتيب: unit ثم LYD ثم input */
+}
+
+.app-unit{
+  font-size: 12px;
+  font-weight: 500;
+  color:#111;
+  white-space: nowrap;
+}
+
+.app-curr{
+  font-size: 12px;
+  font-weight: 500;
+  color:#111;
+  white-space: nowrap;
+}
+
+.app-field{
+  width: 54px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #E5E7EB;
+  background: #fff;
+  outline: none;
+  font-size: 13px;
+  font-weight: 900;
+  color:#111;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 980px){
+  .app-wrap{
+    grid-template-columns: 1fr;
+  }
+}
+/* =========================
+   NAV
+========================= */
+.pd-nav{
+  position: relative;
+  z-index: 5;
+  overflow: visible;   /* مهم عشان أي حاجة تطلع فوقه */
+}
+
+/* =========================
+   PAGE / BODY (تأكد مفيش قص)
+========================= */
+.pd-page,
+.pd-body{
+  position: relative;
+  overflow: visible;   /* لو عندك overflow hidden هنا هيقص الكارد */
+}
+
+/* =========================
+   SIDEBAR فوق الـ NAV
+========================= */
+.pd-sidebar{
+  position: relative;
+  z-index: 20;         /* أعلى من الناف */
+}
+
+/* =========================
+   EMP CARD (overlay لكن جوه مكانه)
+========================= */
+.emp-card{
+  position: relative;          /* ✅ مش absolute */
+  z-index: 30;                 /* أعلى من الناف */
+
+  transform: translateY(-120px);  /* مقدار الطلوع فوق الناف */
+  margin-bottom: -120px;          /* ✅ تعويض المساحة عشان المين ماينزلش */
+  
+  background:#fff;
+  border:1px solid var(--border);
+  box-shadow: var(--shadow);
+  border-radius: 10px;
+  overflow:hidden;
+  padding: 2px;
+}
+
+/* لو عندك كلاس تاني */
+.emp-card1{
+  position: relative;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 860px){
+  .emp-card{
+    transform: none;
+    margin-bottom: 16px;
+    z-index: auto;
+  }
 }

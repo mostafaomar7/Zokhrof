@@ -75,7 +75,7 @@
 
 <div class="pd-body">
   <aside class="pd-sidebar" dir="rtl">
-  <div class="emp-card">
+  <div class="emp-card emp-card1">
 
     <!-- HEADER -->
     <div class="emp-header">
@@ -339,131 +339,442 @@
         </div>
 
         <!-- المساحة -->
-        <div class="field area">
-          <label class="field-label"> </label>
+        <!-- المساحة (من / إلى) جنب بعض -->
+<div class="field area area--2">
+  <div class="area-two">
 
-          <div class="area-stack">
+    <!-- من -->
+    <div class="area-col">
+      <div class="field-label">من</div>
 
-            <div class="area-box">
-              <span class="area-label">من</span>
+      <div class="area-input is-active">
+        <span class="unit">m2</span>
+        <span class="num">{{ projectForm.controls.budgetFrom.value }}</span>
+      </div>
 
-              <div class="area-input"
-                   [class.is-active]="true">
-                <span class="unit">m2</span>
-                <span class="num">{{ projectForm.controls.budgetFrom.value }}</span>
-              </div>
+      <div class="area-input">
+        <span class="unit">m2</span>
+        <span class="num">{{ projectForm.controls.budgetFrom.value }}</span>
+      </div>
+    </div>
+
+    <!-- إلى -->
+    <div class="area-col">
+      <div class="field-label">إلى</div>
+
+      <div class="area-input is-active">
+        <span class="unit">m2</span>
+        <span class="num">{{ projectForm.controls.budgetTo.value }}</span>
+      </div>
+
+      <div class="area-input">
+        <span class="unit">m2</span>
+        <span class="num">{{ projectForm.controls.budgetTo.value }}</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="pd-section-white pd-section-white--mt">
+  
+  <div class="bottom-grid" [formGroup]="projectForm">
+
+    <div class="inputs-column">
+      
+      <div class="ind-card">
+        <div class="card-title-section">
+          <h4 class="card-main-title">قوانين مباني<br>المشروع</h4>
+        </div>
+        <div class="card-content-section">
+          <div class="content-row">
+            <div class="row-label">نسبة المساحة المغطاة</div>
+            <div class="custom-input">
+              <span class="curr">%</span>
+              <span class="val">{{ projectForm.controls.shadedRatio.value }}</span>
             </div>
-
-            <div class="area-box">
-              <span class="area-label">إلى</span>
-
-              <div class="area-input">
-                <span class="unit">m2</span>
-                <span class="num">{{ projectForm.controls.budgetTo.value }}</span>
-              </div>
+          </div>
+          <div class="content-row">
+            <div class="row-label">عدد الأدوار</div>
+            <div class="custom-input">
+              <span class="curr"></span>
+              <span class="val center-text">{{ projectForm.controls.floors.value }}</span>
             </div>
-
           </div>
         </div>
+      </div>
 
+      <div class="ind-card">
+        <div class="card-title-section">
+          <h4 class="card-main-title">مؤشرات<br>المشروع</h4>
+        </div>
+        <div class="card-content-section">
+          <div class="content-row">
+            <div class="row-label">تكلفة تنفيذ المتر المربع</div>
+            <div class="custom-input">
+              <span class="curr"></span>
+              <span class="val">{{ projectForm.controls.costPerM2.value }}</span>
+            </div>
+             <span style="font-size: 9px; font-weight: 900; color: #111; margin-left:-12px;">LYD</span>
+          </div>
+          <div class="content-row">
+            <div class="row-label">زمن تنفيذ المشروع</div>
+            <div class="custom-input">
+              <span class="curr">%</span>
+              <span class="val">{{ projectForm.controls.duration.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="chart-column">
+      <div class="chart-header">
+        <h4 class="chart-title">الجدول الزمني للمشروع</h4>
+      </div>
+
+      <div class="chart-body">
+        <div class="chart-y-axis">
+          <div *ngFor="let r of chartRows">{{ r }}</div>
+        </div>
+
+        <div class="chart-grid-wrapper">
+          <div class="grid-row" *ngFor="let r of chartRows">
+             <div class="grid-cell" *ngFor="let c of chartCols">
+                <div class="dot" [ngClass]="getDotClass(r, c)"></div>
+             </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-x-axis">
+        <span *ngFor="let x of chartXAxis">{{ x }}</span>
       </div>
     </div>
 
   </div>
 </div>
 <div class="pd-section-white pd-section-white--mt">
-  <div class="bottom-grid" [formGroup]="projectForm">
+  
+  <div class="sec-header">
+    <h3 class="sec-title">أسعار وزمن الإستشارات</h3>
+    <span class="sec-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+         <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    </span>
+  </div>
 
-    <!-- RIGHT (BIGGER): Indicators -->
-    <div class="bottom-card indicators-card">
-      <div class="ind-wrap">
+  <div class="consult-container">
+    
+    <div class="consult-row" *ngFor="let row of consultationRows" [class.is-center]="row.center">
 
-        <!-- ===== قوانين مباني المشروع ===== -->
-        <div class="ind-block">
-          <div class="ind-title">قوانين مباني المشروع</div>
+  <!-- لو Center -->
+  <ng-container *ngIf="row.center; else splitRow">
+    <div class="c-group c-group-center">
+      <div class="consult-item" *ngFor="let item of row.right">
+        <div class="c-badge" [ngClass]="item.color">{{ item.code }}</div>
 
-          <div class="ind-two-rows">
-            <!-- Row 1 -->
-            <div class="ind-row-line">
-              <div class="ind-inline">
-                <span class="val">{{ projectForm.controls.shadedRatio.value }}</span>
-                <span class="unit">%</span>
-              </div>
-              <span class="ind-text">نسبة المساحة المغطاة</span>
-            </div>
-
-            <!-- Row 2 -->
-            <div class="ind-row-line">
-              <div class="ind-inline">
-                <span class="val">{{ projectForm.controls.floors.value }}</span>
-              </div>
-              <span class="ind-text">عدد الأدوار</span>
-            </div>
+        <div class="c-inputs">
+          <div class="c-line">
+            <span class="c-lbl">LYD</span>
+            <div class="c-box">{{ item.price }}</div>
+          </div>
+          <div class="c-line">
+            <span class="c-lbl">شهر</span>
+            <div class="c-box">{{ item.time }}</div>
           </div>
         </div>
+      </div>
+    </div>
+  </ng-container>
 
-        <div class="ind-divider"></div>
+  <!-- لو Split (Row1 و Row4) -->
+  <ng-template #splitRow>
+    <div class="c-group c-group-right">
+      <div class="consult-item" *ngFor="let item of row.right">
+        <div class="c-badge" [ngClass]="item.color">{{ item.code }}</div>
 
-        <!-- ===== مؤشرات المشروع ===== -->
-        <div class="ind-block">
-          <div class="ind-title">مؤشرات المشروع</div>
-
-          <div class="ind-two-rows">
-            <!-- Row 1 -->
-            <div class="ind-row-line">
-              <div class="ind-inline">
-                <span class="unit">LYD</span>
-                <span class="val">{{ projectForm.controls.costPerM2.value }}</span>
-              </div>
-              <span class="ind-text">تكلفة تنفيذ المتر المربع</span>
-            </div>
-
-            <!-- Row 2 -->
-            <div class="ind-row-line">
-              <div class="ind-inline">
-                <span class="val">{{ projectForm.controls.duration.value }}</span>
-                <span class="unit">%</span>
-              </div>
-              <span class="ind-text">زمن تنفيذ المشروع</span>
-            </div>
+        <div class="c-inputs">
+          <div class="c-line">
+            <span class="c-lbl">LYD</span>
+            <div class="c-box">{{ item.price }}</div>
+          </div>
+          <div class="c-line">
+            <span class="c-lbl">شهر</span>
+            <div class="c-box">{{ item.time }}</div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- LEFT (SMALLER): Timeline squares -->
-    <div class="bottom-card timeline-card">
-      <div class="bottom-card__title">الجدول الزمني للمشروع</div>
+    <div class="c-group c-group-left">
+      <div class="consult-item" *ngFor="let item of row.left">
+        <div class="c-badge" [ngClass]="item.color">{{ item.code }}</div>
 
-      <div class="sq-gantt">
-        <div class="sq-y">
-          <span *ngFor="let y of ganttY">{{ y }}</span>
+        <div class="c-inputs">
+          <div class="c-line">
+            <span class="c-lbl">LYD</span>
+            <div class="c-box">{{ item.price }}</div>
+          </div>
+          <div class="c-line">
+            <span class="c-lbl">شهر</span>
+            <div class="c-box">{{ item.time }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+</div>
+
+
+  </div>
+</div>
+<!-- =======================
+   Summary + Bank Accounts
+======================= -->
+<div class="pd-section-white pd-section-white--mt">
+
+  <!-- Top Summary Card -->
+  <div class="sum-card" dir="rtl">
+
+    <div class="sum-row">
+      <!-- right item -->
+      <div class="sum-item">
+        <div class="sum-text">
+          <div class="sum-title">إجمالي تكلفة الإستشارات</div>
+          <div class="sum-sub">الهندسية للمتر المربع للمشروع</div>
         </div>
 
-        <div class="sq-grid">
-          <ng-container *ngFor="let row of sqData">
-            <div class="sq-row">
-              <span class="sq"
-                    *ngFor="let c of row"
-                    [class.r]="c==='r'"
-                    [class.g]="c==='g'"
-                    [class.p]="c==='p'"
-                    [class.c]="c==='c'">
-              </span>
-            </div>
-          </ng-container>
+        <div class="sum-input">
+          <span class="sum-unit">LYD</span>
+          <input class="sum-field" type="text" value="200,000" />
+        </div>
+      </div>
+
+      <!-- left item -->
+      <div class="sum-item">
+        <div class="sum-text">
+          <div class="sum-title">إجمالي مدة الإستشارات</div>
+          <div class="sum-sub">الهندسية للمتر المربع للمشروع</div>
         </div>
 
-        <div class="sq-x">
-          <span *ngFor="let x of ganttX">{{ x }}</span>
+        <div class="sum-input">
+          <span class="sum-unit">شهر</span>
+          <input class="sum-field" type="text" value="000" />
+        </div>
+      </div>
+    </div>
+
+    <div class="sum-divider"></div>
+
+    <div class="sum-row">
+      <!-- right item -->
+      <div class="sum-item">
+        <div class="sum-text">
+          <div class="sum-title">إجمالي تكلفة الإشراف</div>
+          <div class="sum-sub">الهندسي للمتر المربع للمشروع</div>
+        </div>
+
+        <div class="sum-input">
+          <span class="sum-unit">LYD</span>
+          <input class="sum-field" type="text" value="200,000" />
+        </div>
+      </div>
+
+      <!-- left item -->
+      <div class="sum-item">
+        <div class="sum-text">
+          <div class="sum-title">إجمالي مدة الإشراف الهندسي</div>
+          <div class="sum-sub">للمتر المربع للمشروع</div>
+        </div>
+
+        <div class="sum-input">
+          <span class="sum-unit">شهر</span>
+          <input class="sum-field" type="text" value="000" />
         </div>
       </div>
     </div>
 
   </div>
 </div>
+<div class="pd-section-white pd-section-white--mt">
+  <!-- Bank Accounts Section -->
+  <div class="bank-sec" dir="rtl">
 
+    <div class="bank-head">
+      <span class="bank-ico" aria-hidden="true">
+        <!-- Bank Icon -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M8 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M16 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M20 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M2 20h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 3 3 8h18L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </span>
+        <div class="bank-title">الحسابات البنكية</div>
+    </div>
+
+    <!-- Account 1 -->
+    <div class="bank-row">
+      <div class="bank-tag">حساب 1</div>
+
+      <div class="bank-grid">
+        <div class="bank-field">
+          <label class="bank-label">اسم الحساب</label>
+          <input class="bank-input" type="text" value="***************" />
+        </div>
+
+        <div class="bank-field">
+          <label class="bank-label">رقم الحساب</label>
+          <input class="bank-input" type="text" value="***************" />
+        </div>
+
+        <div class="bank-field bank-iban">
+          <label class="bank-label">IBAN</label>
+          <input class="bank-input" type="text" value="********" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Account 2 -->
+    <div class="bank-row">
+      <div class="bank-tag">حساب 2</div>
+
+      <div class="bank-grid">
+        <div class="bank-field">
+          <label class="bank-label">اسم الحساب</label>
+          <input class="bank-input" type="text" value="***************" />
+        </div>
+
+        <div class="bank-field">
+          <label class="bank-label">رقم الحساب</label>
+          <input class="bank-input" type="text" value="***************" />
+        </div>
+
+        <div class="bank-field bank-iban">
+          <label class="bank-label">IBAN</label>
+          <input class="bank-input" type="text" value="********" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Account 3 -->
+    <div class="bank-row">
+      <div class="bank-tag">حساب 3</div>
+
+      <div class="bank-grid">
+        <div class="bank-field">
+          <label class="bank-label">اسم الحساب</label>
+          <input class="bank-input" type="text" value="***************" />
+        </div>
+
+        <div class="bank-field">
+          <label class="bank-label">رقم الحساب</label>
+          <input class="bank-input" type="text" value="***************" />
+        </div>
+
+        <div class="bank-field bank-iban">
+          <label class="bank-label">IBAN</label>
+          <input class="bank-input" type="text" value="********" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- =======================
+   App Subscriptions
+======================= -->
+<div class="pd-section-white pd-section-white--mt">
+
+  <div class="app-head" dir="rtl">
+    <div class="app-title">إشتراكات التطبيق</div>
+
+    <span class="app-ico" aria-hidden="true">
+      <!-- Clock icon -->
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 8v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    </span>
+  </div>
+
+  <div class="app-wrap" dir="rtl">
+
+    <!-- Right card: Owner subscriptions -->
+    <div class="app-card">
+      <div class="app-card-title">إشتراكات مالك المشروع</div>
+
+      <div class="app-rows">
+        <div class="app-row">
+          <div class="app-row-label">مستثمر</div>
+
+          <div class="app-row-input">
+            <span class="app-unit">للإستشارة الواحدة</span>
+            <span class="app-curr">LYD</span>
+            <input class="app-field" type="text" value="125" />
+          </div>
+        </div>
+
+        <div class="app-row">
+          <div class="app-row-label">جهة حكومية</div>
+
+          <div class="app-row-input">
+            <span class="app-unit">للإستشارة الواحدة</span>
+            <span class="app-curr">LYD</span>
+            <input class="app-field" type="text" value="500" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Left card: Designer subscriptions -->
+    <div class="app-card">
+      <div class="app-card-title">إشتراكات مصمم المشروع</div>
+
+      <div class="app-rows">
+        <div class="app-row">
+          <div class="app-row-label">مصمم</div>
+
+          <div class="app-row-input">
+            <span class="app-unit">سنوياً</span>
+            <span class="app-curr">LYD</span>
+            <input class="app-field" type="text" value="25" />
+          </div>
+        </div>
+
+        <div class="app-row">
+          <div class="app-row-label">مكتب هندسي</div>
+
+          <div class="app-row-input">
+            <span class="app-unit">سنوياً</span>
+            <span class="app-curr">LYD</span>
+            <input class="app-field" type="text" value="250" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<app-pass-key-footer
+  keyType="admin_technical_portal"
+  redirectTo="/dashboard/project-data"
+  [digits]="4">
+</app-pass-key-footer>
 </main>
 
   <aside class="pd-sidebar" dir="rtl">
