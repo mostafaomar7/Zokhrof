@@ -188,8 +188,8 @@
 </aside>
 
   <main class="pd-main-content" >
-
-  <div class="pd-section-white" >
+     <div class="pd-main-inner">
+      <div class="pd-section-white" >
 
   <!-- Tabs -->
   <div class="tabs-header" role="tablist">
@@ -383,11 +383,11 @@
 </div>
 
 <div class="pd-section-white pd-section-white--mt">
-  
+
   <div class="bottom-grid" [formGroup]="projectForm">
 
     <div class="inputs-column">
-      
+
       <div class="ind-card">
         <div class="card-title-section">
           <h4 class="card-main-title">قوانين مباني<br>المشروع</h4>
@@ -453,7 +453,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="chart-x-axis">
         <span *ngFor="let x of chartXAxis">{{ x }}</span>
       </div>
@@ -462,7 +462,7 @@
   </div>
 </div>
 <div class="pd-section-white pd-section-white--mt">
-  
+
   <div class="sec-header">
     <h3 class="sec-title">أسعار وزمن الإستشارات</h3>
     <span class="sec-icon">
@@ -473,7 +473,7 @@
   </div>
 
   <div class="consult-container">
-    
+
     <div class="consult-row" *ngFor="let row of consultationRows" [class.is-center]="row.center">
 
   <!-- لو Center -->
@@ -775,6 +775,8 @@
   redirectTo="/dashboard/project-data"
   [digits]="4">
 </app-pass-key-footer>
+     </div>
+
 </main>
 
   <aside class="pd-sidebar" dir="rtl">

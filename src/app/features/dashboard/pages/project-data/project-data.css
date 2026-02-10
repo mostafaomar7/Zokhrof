@@ -34,7 +34,7 @@
 
   /* vars */
   --btn-drop: 15px;
-  --btn-inset: clamp(340px, 10vw, 290px);
+  --btn-inset: clamp(320px, 10vw, 290px);
 }
 
 .pd-nav-bg{
@@ -45,11 +45,19 @@
 }
 .pd-nav-bg svg{ width: 100%; height: 100%; display:block; }
 
-.pd-nav-content{
-  position:absolute;
+.pd-nav-content {
+  position: absolute;
   inset: 0;
   z-index: 2;
+  /* نفس عرض الحاوية الرئيسية لضمان المحاذاة */
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
 }
+
+/* تعديل أماكن الأزرار لتكون نسبية وليست ثابتة بالبكسل */
+.pd-save { left: 20px; }
+.pd-edit { right: 20px; }
 
 /* Brand */
 .pd-brand{
@@ -87,14 +95,21 @@
 /* =========================
    Layout Body
 ========================= */
-.pd-body{
+/* هذا الكود يستبدل .pd-body القديم */
+.pd-body {
   display: grid;
-  grid-template-columns: 290px 1fr 350px; /* Sidebar - Main - Sidebar */
+  /* تقسيم الأعمدة: يمين ثابت - وسط مرن - يسار ثابت */
+  grid-template-columns: 300px 1fr 300px;
   gap: 20px;
-  padding: 10px;
+  padding: 20px;
   direction: rtl;
   background: #f8f9fa;
   min-height: 100vh;
+
+  /* الحفاظ على التصميم في المنتصف للشاشات الكبيرة جداً */
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .pd-sidebar{ width: 300px; }
@@ -311,12 +326,19 @@
 /* =========================
    Main Content + Sections
 ========================= */
-.pd-main-content{
+/* هذا الكود يستبدل .pd-main-content القديم */
+.pd-main-content {
   background: var(--bg);
-  padding: 14px;
-  width: 680px;
+  /* إزالة العرض الثابت وجعله مرناً */
+  width: 100.5%;
+  min-width: 0; /* مهم جداً لمنع تمدد الجريد بسبب المحتوى الداخلي */
+  padding: 0;
 }
 
+/* تعديل الـ Sidebar ليكون مرناً ضمن حدوده */
+.pd-sidebar {
+  width: 100%; /* ليأخذ مساحة العمود المخصص له */
+}
 .pd-section-white{
   background:#fff;
   border:1px solid #e6e8ef;
@@ -648,7 +670,7 @@
 }
 .field-label{
   font-size: 11px !important;
-  font-weight: 700;
+  font-weight: 500;
 }
 /* =========================
    Bottom Grid Layout
@@ -658,12 +680,12 @@
 ========================= */
 .bottom-grid {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr; 
+  grid-template-columns: 1.1fr 0.9fr;
   gap: 12px;
   align-items: stretch;
   direction: rtl;
   /* تحديد ارتفاع ثابت وصغير كما في الصورة الأخيرة */
-  height: 150px; 
+  height: 150px;
 }
 
 /* =========================
@@ -682,7 +704,7 @@
   border: 1px solid #E5E7EB;
   border-radius: 14px;
   /* تقليل الحشو الداخلي جداً ليناسب الارتفاع الصغير */
-  padding: 0 12px; 
+  padding: 0 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -773,7 +795,7 @@
   display: flex;
   flex-direction: column;
   height: 100%; /* 190px */
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .chart-header {
@@ -958,7 +980,7 @@
   flex-direction:column;
   align-items:center;
   gap:8px;
-  width:75px;
+  width:65px;
 }
 
 /* badge */
@@ -1361,7 +1383,7 @@
 
   transform: translateY(-120px);  /* مقدار الطلوع فوق الناف */
   margin-bottom: -120px;          /* ✅ تعويض المساحة عشان المين ماينزلش */
-  
+
   background:#fff;
   border:1px solid var(--border);
   box-shadow: var(--shadow);
