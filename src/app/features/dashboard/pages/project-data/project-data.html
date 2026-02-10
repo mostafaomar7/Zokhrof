@@ -13,7 +13,13 @@
     <div class="pd-nav-content">
 
       <!-- LEFT: حفظ -->
-      <button class="pd-save" type="button" aria-label="حفظ">
+      <button
+  class="pd-save"
+  type="button"
+  aria-label="حفظ"
+  [disabled]="bankForm.invalid || savingBank"
+  (click)="saveBankAccounts()">
+
         <span class="pd-save-ic" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="127" height="88" viewBox="0 0 127 88" fill="none">
 <g filter="url(#filter0_d_5567_15815)">
@@ -608,93 +614,104 @@
 </div>
 <div class="pd-section-white pd-section-white--mt">
   <!-- Bank Accounts Section -->
-  <div class="bank-sec" dir="rtl">
+  <div class="bank-sec" dir="rtl" [formGroup]="bankForm">
 
-    <div class="bank-head">
-      <span class="bank-ico" aria-hidden="true">
-        <!-- Bank Icon -->
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M4 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M8 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M12 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M16 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M20 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M2 20h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M12 3 3 8h18L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-      </span>
-        <div class="bank-title">الحسابات البنكية</div>
-    </div>
+  <div class="bank-head">
+    <span class="bank-ico" aria-hidden="true">
+      <!-- Bank Icon -->
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M4 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M8 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M16 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M20 10V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M2 20h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 3 3 8h18L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <div class="bank-title">الحسابات البنكية</div>
+  </div>
+
+  <div formArrayName="accounts">
 
     <!-- Account 1 -->
-    <div class="bank-row">
+    <div class="bank-row" [formGroupName]="0">
       <div class="bank-tag">حساب 1</div>
 
       <div class="bank-grid">
         <div class="bank-field">
           <label class="bank-label">اسم الحساب</label>
-          <input class="bank-input" type="text" value="***************" />
+          <input class="bank-input" type="text" formControlName="account_name" placeholder="***************" />
         </div>
 
         <div class="bank-field">
           <label class="bank-label">رقم الحساب</label>
-          <input class="bank-input" type="text" value="***************" />
+          <input class="bank-input" type="text" formControlName="account_number" placeholder="***************" />
         </div>
 
         <div class="bank-field bank-iban">
           <label class="bank-label">IBAN</label>
-          <input class="bank-input" type="text" value="********" />
+          <input class="bank-input" type="text" formControlName="iban" placeholder="***************" />
         </div>
       </div>
     </div>
 
     <!-- Account 2 -->
-    <div class="bank-row">
+    <div class="bank-row" [formGroupName]="1">
       <div class="bank-tag">حساب 2</div>
 
       <div class="bank-grid">
         <div class="bank-field">
           <label class="bank-label">اسم الحساب</label>
-          <input class="bank-input" type="text" value="***************" />
+          <input class="bank-input" type="text" formControlName="account_name" placeholder="***************" />
         </div>
 
         <div class="bank-field">
           <label class="bank-label">رقم الحساب</label>
-          <input class="bank-input" type="text" value="***************" />
+          <input class="bank-input" type="text" formControlName="account_number" placeholder="***************" />
         </div>
 
         <div class="bank-field bank-iban">
           <label class="bank-label">IBAN</label>
-          <input class="bank-input" type="text" value="********" />
+          <input class="bank-input" type="text" formControlName="iban" placeholder="***************" />
         </div>
       </div>
     </div>
 
     <!-- Account 3 -->
-    <div class="bank-row">
+    <div class="bank-row" [formGroupName]="2">
       <div class="bank-tag">حساب 3</div>
 
       <div class="bank-grid">
         <div class="bank-field">
           <label class="bank-label">اسم الحساب</label>
-          <input class="bank-input" type="text" value="***************" />
+          <input class="bank-input" type="text" formControlName="account_name" placeholder="***************" />
         </div>
 
         <div class="bank-field">
           <label class="bank-label">رقم الحساب</label>
-          <input class="bank-input" type="text" value="***************" />
+          <input class="bank-input" type="text" formControlName="account_number" placeholder="***************" />
         </div>
 
         <div class="bank-field bank-iban">
           <label class="bank-label">IBAN</label>
-          <input class="bank-input" type="text" value="********" />
+          <input class="bank-input" type="text" formControlName="iban" placeholder="***************" />
         </div>
       </div>
     </div>
 
   </div>
 </div>
+
+</div>
+<div class="bank-msg"
+     *ngIf="bankMessage"
+     [class.success]="bankMessage.type === 'success'"
+     [class.error]="bankMessage.type === 'error'">
+  {{ bankMessage.text }}
+</div>
+ 
 <!-- =======================
    App Subscriptions
 ======================= -->

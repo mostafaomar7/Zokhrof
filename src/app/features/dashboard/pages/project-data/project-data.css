@@ -1407,3 +1407,20 @@
     z-index: auto;
   }
 }
+.bank-msg {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  position: absolute;
+  top: -110px;
+  left: 300px;
+  z-index: 333333333333;
+}
+.bank-msg.success {
+  background: #e6f9ee;
+  color: #1b7a41;
+}
+.bank-msg.error {
+  background: #fdeaea;
+  color: #b42318;
+}
