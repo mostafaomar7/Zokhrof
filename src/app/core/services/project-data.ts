@@ -32,5 +32,19 @@ export class ProjectDataService {
     data: BankAccount[];
   }>(`${this.apiUrl}/v1/dashboard/project-data/bank-accounts`);
 }
+getSubscriptionFees() {
+  return this.http.get<{
+    success: boolean;
+    message: string;
+    data: any[];
+  }>(`${this.apiUrl}/v1/dashboard/project-data/subscription-fees`);
+}
+
+updateSubscriptionFee(id: string, annual_fee: string) {
+  return this.http.put(
+    `${this.apiUrl}/v1/dashboard/project-data/subscription-fees/${id}`,
+    { annual_fee }
+  );
+}
 
 }

@@ -50,8 +50,11 @@
       </div>
 
       <!-- RIGHT: تعديل -->
-      <button class="pd-edit" type="button" aria-label="تعديل">
-        <span class="pd-edit-ic" aria-hidden="true">
+<button class="pd-edit"
+        type="button"
+        [disabled]="subscriptionLoading"
+        (click)="updateAllSubscriptions()">
+<span>
           <!-- ✅ SVG تعديل (اللي بعته) -->
           <svg xmlns="http://www.w3.org/2000/svg" width="127" height="88" viewBox="0 0 127 88" fill="none">
 <g filter="url(#filter0_d_5567_15810)">
@@ -711,7 +714,7 @@
      [class.error]="bankMessage.type === 'error'">
   {{ bankMessage.text }}
 </div>
- 
+
 <!-- =======================
    App Subscriptions
 ======================= -->
@@ -721,7 +724,6 @@
     <div class="app-title">إشتراكات التطبيق</div>
 
     <span class="app-ico" aria-hidden="true">
-      <!-- Clock icon -->
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path d="M12 8v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2"/>
@@ -731,62 +733,57 @@
 
   <div class="app-wrap" dir="rtl">
 
-    <!-- Right card: Owner subscriptions -->
+    <!-- Owner -->
     <div class="app-card">
       <div class="app-card-title">إشتراكات مالك المشروع</div>
 
       <div class="app-rows">
-        <div class="app-row">
-          <div class="app-row-label">مستثمر</div>
+  <ng-container *ngFor="let fee of subscriptionFees">
+    <div class="app-row" *ngIf="fee.user_type === 'project_owner'">
+      <div class="app-row-label">{{ fee.subscription_type }}</div>
 
-          <div class="app-row-input">
-            <span class="app-unit">للإستشارة الواحدة</span>
-            <span class="app-curr">LYD</span>
-            <input class="app-field" type="text" value="125" />
-          </div>
-        </div>
+      <div class="app-row-input">
+        <span class="app-unit">للإستشارة الواحدة</span>
+        <span class="app-curr">LYD</span>
 
-        <div class="app-row">
-          <div class="app-row-label">جهة حكومية</div>
-
-          <div class="app-row-input">
-            <span class="app-unit">للإستشارة الواحدة</span>
-            <span class="app-curr">LYD</span>
-            <input class="app-field" type="text" value="500" />
-          </div>
-        </div>
+        <input class="app-field"
+               type="text"
+               [value]="fee.annual_fee"
+               (input)="fee.annual_fee = $any($event.target).value" />
       </div>
     </div>
+  </ng-container>
+</div>
 
-    <!-- Left card: Designer subscriptions -->
+    </div> 
+
+    <!-- Designer -->
     <div class="app-card">
       <div class="app-card-title">إشتراكات مصمم المشروع</div>
 
       <div class="app-rows">
-        <div class="app-row">
-          <div class="app-row-label">مصمم</div>
+  <ng-container *ngFor="let fee of subscriptionFees">
+    <div class="app-row" *ngIf="fee.user_type === 'project_designer'">
+      <div class="app-row-label">{{ fee.subscription_type }}</div>
 
-          <div class="app-row-input">
-            <span class="app-unit">سنوياً</span>
-            <span class="app-curr">LYD</span>
-            <input class="app-field" type="text" value="25" />
-          </div>
-        </div>
+      <div class="app-row-input">
+        <span class="app-unit">سنوياً</span>
+        <span class="app-curr">LYD</span>
 
-        <div class="app-row">
-          <div class="app-row-label">مكتب هندسي</div>
-
-          <div class="app-row-input">
-            <span class="app-unit">سنوياً</span>
-            <span class="app-curr">LYD</span>
-            <input class="app-field" type="text" value="250" />
-          </div>
-        </div>
+        <input class="app-field"
+               type="text"
+               [value]="fee.annual_fee"
+               (input)="fee.annual_fee = $any($event.target).value" />
       </div>
+    </div>
+  </ng-container>
+</div>
+
     </div>
 
   </div>
 </div>
+
 <app-pass-key-footer
   keyType="admin_technical_portal"
   redirectTo="/dashboard/project-data"

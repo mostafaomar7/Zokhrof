@@ -34,9 +34,13 @@ interface BankAccount {
 export class ProjectData implements OnInit {
   ngOnInit(): void {
     this.loadBankAccounts();
+    this.loadSubscriptionFees();
+
   }
   private fb = inject(FormBuilder);
   private projectDataService = inject(ProjectDataService);
+  subscriptionFees: any[] = [];
+subscriptionLoading = false;
 
   // ===== UI State =====
   isEdit = false;
@@ -315,5 +319,72 @@ loadBankAccounts() {
     }
   });
 }
+loadSubscriptionFees() {
+  this.subscriptionLoading = true;
+
+  this.projectDataService.getSubscriptionFees().subscribe({
+    next: (res) => {
+      const data = res?.data ?? [];
+      this.subscriptionFees = Array.isArray(data) ? data : [];
+      this.subscriptionLoading = false;
+
+      console.log('[Subscription Fees] Raw response:', res);
+      console.log('[Subscription Fees] data:', this.subscriptionFees);
+    },
+    error: (err: HttpErrorResponse) => {
+      this.subscriptionLoading = false;
+      console.error('[Subscription Fees] Failed', err);
+      this.showBankMessage('error', this.getBackendErrorMessage(err));
+    }
+  });
+}
+
+getFee(userType: string, type: string) {
+  return this.subscriptionFees.find(
+    f => f.user_type === userType && f.subscription_type === type
+  );
+}
+updateAllSubscriptions() {
+  if (!this.subscriptionFees.length) {
+    this.showBankMessage('error', 'لا توجد بيانات اشتراك للتعديل');
+    return;
+  }
+
+  this.subscriptionLoading = true;
+  this.showBankMessage('success', 'جاري حفظ تعديلات الإشتراكات...');
+
+  let completed = 0;
+  let hasError = false;
+
+  this.subscriptionFees.forEach(fee => {
+    this.projectDataService
+      .updateSubscriptionFee(fee.id, fee.annual_fee)
+      .subscribe({
+        next: () => {
+          completed++;
+
+          if (completed === this.subscriptionFees.length && !hasError) {
+            this.subscriptionLoading = false;
+            this.showBankMessage('success', 'تم تحديث الإشتراكات بنجاح');
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          hasError = true;
+          this.subscriptionLoading = false;
+
+          this.showBankMessage('error', this.getBackendErrorMessage(err) || 'حدث خطأ أثناء تحديث الإشتراكات');
+        }
+      });
+  });
+}
+
+updateFeeValue(userType: string, type: string, value: string) {
+  const fee = this.getFee(userType, type);
+  if (fee) {
+    fee.annual_fee = value;
+    this.showBankMessage('success', 'تم تعديل قيمة الإشتراك (لم يتم الحفظ بعد)');
+  }
+}
+
 
 }
