@@ -32,11 +32,47 @@ interface BankAccount {
   styleUrl: './project-data.css',
 })
 export class ProjectData implements OnInit {
-  ngOnInit(): void {
-    this.loadBankAccounts();
-    this.loadSubscriptionFees();
+ ngOnInit(): void {
+  this.loadBankAccounts();
+  this.loadSubscriptionFees();
 
-  }
+  // أول تحميل
+  this.loadSectors();
+
+  // (اختياري) Logs مرة واحدة فقط (مش جوه projectName)
+  this.projectForm.controls.owner.valueChanges.subscribe(v => console.log('[owner]', v));
+  this.projectForm.controls.scale.valueChanges.subscribe(v => console.log('[scale]', v));
+  this.projectForm.controls.sectorId.valueChanges.subscribe(v => console.log('[sectorId]', v));
+  this.projectForm.controls.projectTypeName.valueChanges.subscribe(v => console.log('[projectTypeName]', v));
+  this.projectForm.controls.projectName.valueChanges.subscribe(v => console.log('[projectName]', v));
+
+  // تغيّر owner أو size → إعادة تحميل القطاعات
+  this.projectForm.controls.owner.valueChanges.subscribe(() => this.loadSectors());
+  this.projectForm.controls.scale.valueChanges.subscribe(() => this.loadSectors());
+
+  // تغيّر sector → تحميل templates
+  this.projectForm.controls.sectorId.valueChanges.subscribe((sid) => {
+    if (sid) this.loadTemplatesBySector(sid);
+  });
+
+  // تغيّر type → فلترة names
+  this.projectForm.controls.projectTypeName.valueChanges.subscribe((t) => {
+    this.projectForm.patchValue(
+      { projectName: null, budgetFrom: '0', budgetTo: '0' },
+      { emitEvent: false }
+    );
+    this.projectNames = [];
+    if (t) this.loadNamesByType(t);
+  });
+
+  // تغيّر projectName → املا المساحة من template ثم (هيتنادي loadProjectDetailsFromFilter داخل fillAreaFromTemplate)
+  this.projectForm.controls.projectName.valueChanges.subscribe((name) => {
+    if (!name) return;
+    this.fillAreaFromTemplate(); // ✅ هيعمل patch area ثم ينادي loadProjectDetailsFromFilter()
+  });
+}
+
+
   private fb = inject(FormBuilder);
   private projectDataService = inject(ProjectDataService);
   subscriptionFees: any[] = [];
@@ -47,21 +83,149 @@ subscriptionLoading = false;
   activeTab: 'dash' | 'designer' | 'project' = 'project';
 
   // ===== Project Form =====
-  projectForm = this.fb.group({
-    owner: this.fb.control('GV', Validators.required),
-    sector: this.fb.control('HLT', Validators.required),
-    type: this.fb.control('مستشفى', Validators.required),
-    name: this.fb.control('تجهيزي', Validators.required),
-    scale: this.fb.control('SM', Validators.required),
-    budgetFrom: this.fb.control('000.000'),
-    budgetTo: this.fb.control('000.000'),
-    region: this.fb.control('عام'),
-    centerType: this.fb.control('مركزي'),
-    costPerM2: this.fb.control('200,000'),
-    duration: this.fb.control('000'),
-    shadedRatio: this.fb.control('000'),
-    floors: this.fb.control(4),
+projectForm = this.fb.group({
+  owner: this.fb.control<'GV' | 'IV'>('GV', Validators.required),
+  sectorId: this.fb.control<string | null>(null, Validators.required),
+
+  projectTypeName: this.fb.control<string | null>(null, Validators.required),
+  projectName: this.fb.control<string | null>(null, Validators.required),
+
+  scale: this.fb.control<'SM' | 'LR'>('SM', Validators.required),
+
+  budgetFrom: this.fb.control('0'),
+  budgetTo: this.fb.control('0'),
+
+  // ✅ add missing controls used in template
+  shadedRatio: this.fb.control<string>('0'),
+  floors: this.fb.control<string>('0'),
+  costPerM2: this.fb.control<string>('0'),
+  duration: this.fb.control<string>('0'),
+});
+
+
+sectors: { id: string; name_ar: string; name_en: string }[] = [];
+templates: any[] = [];
+
+projectTypes: string[] = [];
+projectNames: string[] = [];
+private mapOwner(owner: 'GV' | 'IV') {
+  return owner === 'GV' ? 'government' : 'investor';
+}
+private mapSize(size: 'SM' | 'LR') {
+  return size === 'SM' ? 'small' : 'large';
+}
+loadSectors() {
+  const owner = this.mapOwner(this.projectForm.controls.owner.value!);
+  const size = this.mapSize(this.projectForm.controls.scale.value!);
+
+  // Reset تحت
+  this.sectors = [];
+  this.templates = [];
+  this.projectTypes = [];
+  this.projectNames = [];
+
+ this.projectForm.patchValue({
+  sectorId: null,
+  projectTypeName: null,
+  projectName: null,
+  budgetFrom: '0',
+  budgetTo: '0',
+  shadedRatio: '0',
+  floors: '0',
+  costPerM2: '0',
+  duration: '0',
+}, { emitEvent: false });
+
+  this.projectDataService.getProjectTemplates({
+    owner_type: owner,
+    project_size: size,
+  }).subscribe({
+    next: (res) => {
+      const data = res?.data ?? [];
+      // Unique sectors من data
+      const map = new Map<string, any>();
+      data.forEach(t => {
+        const s = t.sector;
+        if (s?.id && !map.has(s.id)) map.set(s.id, s);
+      });
+      this.sectors = Array.from(map.values());
+    },
   });
+}
+loadTemplatesBySector(sectorId: string) {
+  const owner = this.mapOwner(this.projectForm.controls.owner.value!);
+  const size = this.mapSize(this.projectForm.controls.scale.value!);
+
+  // Reset type/name + area = 0
+  this.templates = [];
+  this.projectTypes = [];
+  this.projectNames = [];
+
+  this.projectForm.patchValue({
+    projectTypeName: null,
+    projectName: null,
+    budgetFrom: '0',
+    budgetTo: '0',
+  }, { emitEvent: false });
+
+  this.projectDataService.getProjectTemplates({
+    owner_type: owner,
+    project_size: size,
+    sector_id: sectorId,
+  }).subscribe({
+    next: (res) => {
+      this.templates = res?.data ?? [];
+
+      // Unique types
+      const typeSet = new Set<string>();
+      this.templates.forEach(t => {
+        if (t.project_type_name) typeSet.add(t.project_type_name);
+      });
+      this.projectTypes = Array.from(typeSet);
+
+      // لو عندك نوع واحد بس، اختاره تلقائيًا واملأ الأسماء
+      if (this.projectTypes.length === 1) {
+        const onlyType = this.projectTypes[0];
+        this.projectForm.controls.projectTypeName.setValue(onlyType);
+        this.loadNamesByType(onlyType);
+      }
+    },
+  });
+}
+
+loadNamesByType(typeName: string) {
+  const nameSet = new Set<string>();
+  this.templates
+    .filter(t => t.project_type_name === typeName)
+    .forEach(t => nameSet.add(t.project_name));
+
+  this.projectNames = Array.from(nameSet);
+
+  // لو اسم واحد بس اختاره تلقائيًا واملأ المساحة
+  if (this.projectNames.length === 1) {
+    const onlyName = this.projectNames[0];
+    this.projectForm.controls.projectName.setValue(onlyName);
+    this.fillAreaFromTemplate();
+  }
+}
+fillAreaFromTemplate() {
+  const typeName = this.projectForm.controls.projectTypeName.value;
+  const name = this.projectForm.controls.projectName.value;
+
+  if (!typeName || !name) return;
+
+  const row = this.templates.find(t =>
+    t.project_type_name === typeName && t.project_name === name
+  );
+
+  this.projectForm.patchValue({
+    budgetFrom: row?.area_from ?? '0',
+    budgetTo: row?.area_to ?? '0',
+  }, { emitEvent: false });
+
+  // ✅ call بعد ما المساحة تتحدث
+  this.loadProjectDetailsFromFilter();
+}
 
   toggleEdit() {
     this.isEdit = !this.isEdit;
@@ -72,30 +236,36 @@ subscriptionLoading = false;
     this.isEdit = false;
     this.projectForm.markAsPristine();
   }
+setValue<K extends keyof ProjectData['projectForm']['controls']>(key: K, val: any) {
+  this.projectForm.controls[key].setValue(val);
+  this.projectForm.markAsDirty();
 
-  setValue<K extends keyof ProjectData['projectForm']['controls']>(key: K, val: any) {
-    this.projectForm.controls[key].setValue(val);
-    this.projectForm.markAsDirty();
+  if (key === 'projectName') {
+    console.log('[setValue] projectName clicked', val);
+    this.fillAreaFromTemplate();
+    this.loadProjectDetailsFromFilter();
   }
+}
 
   // ===== Dot Chart =====
-  chartRows = [5, 4, 3, 2];
+  chartRows = [5, 4, 3, 2, 1];
   chartCols = Array.from({ length: 30 }, (_, i) => i + 1);
   chartXAxis = Array.from({ length: 30 }, (_, i) => i + 1);
+timelinePhases: any[] = [];
 
-  getDotClass(row: number, col: number): string {
-    if (row === 3 && col >= 4 && col <= 7) return 'dot-green';
-    if (row === 4 && col >= 8 && col <= 13) return 'dot-green';
-    if (row === 5 && col >= 14 && col <= 18) return 'dot-green';
+  // getDotClass(row: number, col: number): string {
+  //   if (row === 3 && col >= 4 && col <= 7) return 'dot-green';
+  //   if (row === 4 && col >= 8 && col <= 13) return 'dot-green';
+  //   if (row === 5 && col >= 14 && col <= 18) return 'dot-green';
 
-    if (row === 4 && col === 13) return 'dot-purple';
+  //   if (row === 4 && col === 13) return 'dot-purple';
 
-    if (row === 5 && col >= 28) return 'dot-red';
+  //   if (row === 5 && col >= 28) return 'dot-red';
 
-    if (row === 2 && col <= 3) return 'dot-cyan';
+  //   if (row === 2 && col <= 3) return 'dot-cyan';
 
-    return '';
-  }
+  //   return '';
+  // }
 
   // ===== Consultation Rows =====
   consultationRows: ConsultRow[] = [
@@ -338,6 +508,11 @@ loadSubscriptionFees() {
     }
   });
 }
+getConsultOrder(i: number): number {
+  // يخلي العرض صفوف (كل صف فيه 2)
+  // i=0 -> 0, i=1 -> 1, i=2 -> 2 ...
+  return i;
+}
 
 getFee(userType: string, type: string) {
   return this.subscriptionFees.find(
@@ -384,6 +559,218 @@ updateFeeValue(userType: string, type: string, value: string) {
     fee.annual_fee = value;
     this.showBankMessage('success', 'تم تعديل قيمة الإشتراك (لم يتم الحفظ بعد)');
   }
+}
+// داخل ProjectData component
+
+selectedProject: any | null = null;
+
+consultationCategories: any[] = []; // من consultation_fees_and_timeframes
+
+totals = {
+  consultCost: 0,
+  consultDays: 0,
+  supervisCost: 0,
+  supervisDays: 0,
+};
+private mapOwnerForFilter(owner: 'GV' | 'IV') {
+  return owner === 'GV' ? 'government' : 'investor'; // ✅ بدل individual
+}
+
+private mapSizeForFilter(size: 'SM' | 'LR') {
+  return size === 'SM' ? 'small' : 'large';
+}
+loadProjectDetailsFromFilter() {
+  const owner = this.projectForm.controls.owner.value;
+  const sectorId = this.projectForm.controls.sectorId.value;
+  const size = this.projectForm.controls.scale.value;
+  const typeName = this.projectForm.controls.projectTypeName.value;
+  const projectName = this.projectForm.controls.projectName.value;
+
+  console.log('[Filter] inputs', { owner, sectorId, size, typeName, projectName });
+
+  if (!owner || !sectorId || !size || !typeName || !projectName) {
+    console.warn('[Filter] missing value -> skip');
+    return;
+  }
+
+  // 👇 دور على التيمبلت المطابق
+  const row = this.templates.find((t: any) =>
+    t.project_type_name === typeName && t.project_name === projectName
+  );
+
+  const project_type_id =
+    row?.project_type_id || row?.project_type?.id;
+
+  const project_specialization_id =
+    row?.project_specialization_id || row?.specialization?.id;
+
+  // ✅ هنا بالظبط تحط اللوجات
+  console.log('[Filter] typeName/name', typeName, projectName);
+  console.log('[Filter] templates count', this.templates?.length);
+  console.log('[Filter] matched row', row);
+  console.log('[Filter] extracted ids', {
+    project_type_id,
+    project_specialization_id,
+  });
+
+  // 👇 بعد كده ابنِ الـ payload
+  const payload: any = {
+    owner_type: this.mapOwnerForFilter(owner),
+    project_size: this.mapSizeForFilter(size),
+    project_sector_id: sectorId,
+    area_from: this.projectForm.controls.budgetFrom.value,
+    area_to: this.projectForm.controls.budgetTo.value,
+  };
+
+  if (project_type_id)
+    payload.project_type_id = project_type_id;
+
+  if (project_specialization_id)
+    payload.project_specialization_id = project_specialization_id;
+
+  console.log('[Filter] payload', payload);
+
+  this.projectDataService.filterProjects(payload).subscribe({
+    next: (res) => {
+      console.log('[Filter] response', res);
+
+      const data = res?.data;
+      const project = data?.projects?.[0];
+
+      if (project) {
+        this.applyProjectToUI(project);
+      } else {
+        console.warn('[Filter] no projects returned -> use base_consultation_summary');
+        this.applyBaseSummaryToUI(data?.base_consultation_summary);
+      }
+    },
+    error: (err) => console.error('[Filter Projects] Failed', err),
+  });
+}
+
+applyBaseSummaryToUI(summary: any) {
+  const shadedRatio =
+    summary?.building_codes?.covered_area_percentage ??
+    summary?.covered_area_percentage;
+
+  const floors =
+    summary?.building_codes?.number_of_floors ??
+    summary?.number_of_floors;
+
+  const costPerM2 =
+    summary?.project_indicators?.cost_per_square_meter ??
+    summary?.cost_per_square_meter;
+
+  const duration =
+    summary?.project_indicators?.project_completion_time_percentage ??
+    summary?.project_completion_time_percentage;
+
+  this.projectForm.patchValue(
+    {
+      shadedRatio: shadedRatio != null ? String(shadedRatio) : this.projectForm.controls.shadedRatio.value,
+      floors: floors != null ? String(floors) : this.projectForm.controls.floors.value,
+      costPerM2: costPerM2 != null ? String(costPerM2) : this.projectForm.controls.costPerM2.value,
+      duration: duration != null ? String(duration) : this.projectForm.controls.duration.value,
+    },
+    { emitEvent: false }
+  );
+
+  // باقي البيانات
+  this.consultationCategories = summary?.consultation_fees_and_timeframes ?? [];
+  this.rebuildConsultLayout();
+  this.timelinePhases = summary?.project_timeline_phases ?? [];
+  this.rebuildTimeline();
+}
+
+applyProjectToUI(project: any) {
+  const shadedRatio =
+    project?.building_codes?.covered_area_percentage ??
+    project?.covered_area_percentage ??
+    '0';
+
+  const floors =
+    project?.building_codes?.number_of_floors ??
+    project?.number_of_floors ??
+    '0';
+
+  const costPerM2 =
+    project?.project_indicators?.cost_per_square_meter ??
+    project?.cost_per_square_meter ??
+    '0';
+
+  const duration =
+    project?.project_indicators?.project_completion_time_percentage ??
+    project?.project_completion_time_percentage ??
+    '0';
+
+  this.projectForm.patchValue(
+    {
+      shadedRatio: String(shadedRatio),
+      floors: String(floors),
+      costPerM2: String(costPerM2),
+      duration: String(duration),
+    },
+    { emitEvent: false }
+  );
+  console.log('[UI] patched', this.projectForm.value);
+
+}
+
+// ===== Consult layout مطلوب =====
+consultRowsUI: any[][] = [];
+
+private buildConsultRows(items: any[]) {
+  const sizes = [3, 3, 5, 6, 3, 3]; // ✅ المطلوب
+  const rows: any[][] = [];
+
+  let idx = 0;
+  for (const size of sizes) {
+    rows.push(items.slice(idx, idx + size));
+    idx += size;
+  }
+
+  // لو فيه عناصر زيادة (احتياطي)
+  if (idx < items.length) rows.push(items.slice(idx));
+
+  this.consultRowsUI = rows.filter(r => r.length);
+}
+
+private rebuildConsultLayout() {
+  const flat = (this.consultationCategories ?? [])
+    .flatMap(c => c?.sub_consultations ?? []);
+
+  this.buildConsultRows(flat);
+}
+private phaseSegments: { from: number; to: number }[] = [];
+
+private rebuildTimeline() {
+  const phases = this.timelinePhases ?? [];
+  const totalDays = phases.reduce((a, p) => a + Number(p?.total_duration_days ?? 0), 0);
+
+  if (!totalDays) {
+    this.phaseSegments = [];
+    return;
+  }
+
+  let cursor = 1;
+  this.phaseSegments = phases.map(p => {
+    const days = Number(p?.total_duration_days ?? 0);
+    const width = Math.max(1, Math.round((days / totalDays) * this.chartCols.length));
+    const seg = { from: cursor, to: Math.min(this.chartCols.length, cursor + width - 1) };
+    cursor = seg.to + 1;
+    return seg;
+  });
+}
+
+getDotClass(row: number, col: number): string {
+  // مثال: خلي الصف 5 هو اللي يرسم الجدول (أو وزعهم زي ما تحب)
+  if (row !== 5) return '';
+
+  const idx = this.phaseSegments.findIndex(s => col >= s.from && col <= s.to);
+  if (idx === -1) return '';
+
+  // class مختلفة لكل phase (اعملها زي ما تحب)
+  return idx % 2 === 0 ? 'dot-green' : 'dot-purple';
 }
 
 

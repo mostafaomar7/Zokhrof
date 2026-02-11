@@ -15,7 +15,10 @@
 
 /* الخلفية */
 
-
+img{
+  width: 76.47058868408203px;
+height: 76.6922378540039px;
+}
 /* طبقة المحتوى */
 .content{
   position:relative;
@@ -25,7 +28,7 @@
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  padding: 24px;
+  padding: 0px 24px;
 }
 
 /* اللوجو فوق */
@@ -33,7 +36,7 @@
   color:#3C2F4B;
   font-weight:800;
   font-size: 24.47px;
-  margin-bottom: 18px;
+  margin-bottom: 8px;
 }
 
 /* الكارد */

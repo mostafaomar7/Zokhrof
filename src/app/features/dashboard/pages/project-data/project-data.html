@@ -259,72 +259,77 @@
 
         <!-- قطاع المشروع -->
         <div class="field sector">
-          <label class="field-label">قطاع المشروع</label>
+  <label class="field-label">قطاع المشروع</label>
 
-          <button type="button"
-                  class="chip chip--big"
-                  (click)="setValue('sector','HLT')"
-                  [class.is-active]="projectForm.controls.sector.value==='HLT'">
-            <span class="chip-big-text">HLT</span>
-            <span class="chip-big-arrow" aria-hidden="true">▾</span>
-          </button>
-        </div>
+  <div style="display:inline-flex; align-items:center; position:relative;">
+    <select
+      formControlName="sectorId"
+      style="
+        display:inline-flex;
+        align-items:center;
+        height: 80px;
+        padding: 0 10px 0 10px;   /* مساحة للسهم */
+        border-radius: 12px;
+        border: 2px solid #FFAD14;
+        background: #FFF600;
+        font-weight: 600;
+        cursor: pointer;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      ">
+      <option [ngValue]="null" disabled>اختر القطاع</option>
+      <option *ngFor="let s of sectors" [value]="s.id">
+        {{ s.name_ar }}
+      </option>
+    </select>
+
+    <span
+      aria-hidden="true"
+      style="
+        position:absolute;
+        inset-inline-end: 12px;  /* يشتغل مع RTL/LTR */
+        pointer-events:none;
+        font-size: 14px;
+        opacity: .7;
+      ">▾</span>
+  </div>
+</div>
+
 
         <!-- نوع المشروع -->
-        <div class="field project-type">
-          <label class="field-label">نوع المشروع</label>
+<div class="field project-type">
+  <label class="field-label">نوع المشروع</label>
 
-          <div class="stack">
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('type','مستشفى')"
-                    [class.is-active]="projectForm.controls.type.value==='مستشفى'">
-              مستشفى
-            </button>
+  <div class="stack">
+    <button
+      *ngFor="let t of projectTypes"
+      type="button"
+      class="chip"
+      (click)="setValue('projectTypeName', t)"
+      [class.is-active]="projectForm.controls.projectTypeName.value === t">
+      {{ t }}
+    </button>
+  </div>
+</div>
 
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('type','مركز طبي')"
-                    [class.is-active]="projectForm.controls.type.value==='مركز طبي'">
-              مركز طبي
-            </button>
 
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('type','تخصصي')"
-                    [class.is-active]="projectForm.controls.type.value==='تخصصي'">
-              تخصصي
-            </button>
-          </div>
-        </div>
+<!-- اسم المشروع -->
+<div class="field project-name">
+  <label class="field-label">اسم المشروع</label>
 
-        <!-- اسم المشروع -->
-        <div class="field project-name">
-          <label class="field-label">اسم المشروع</label>
+  <div class="stack">
+    <button
+      *ngFor="let n of projectNames"
+      type="button"
+      class="chip"
+      (click)="setValue('projectName', n)"
+      [class.is-active]="projectForm.controls.projectName.value === n">
+      {{ n }}
+    </button>
+  </div>
+</div>
 
-          <div class="stack">
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('region','عام')"
-                    [class.is-active]="projectForm.controls.region.value==='عام'">
-              عام
-            </button>
-
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('region','تخصصي')"
-                    [class.is-active]="projectForm.controls.region.value==='تخصصي'">
-              تخصصي
-            </button>
-
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('region','مركزي')"
-                    [class.is-active]="projectForm.controls.region.value==='مركزي'">
-              مركزي
-            </button>
-          </div>
-        </div>
 
         <!-- حجم المشروع -->
         <div class="field size">
@@ -430,7 +435,7 @@
               <span class="curr"></span>
               <span class="val">{{ projectForm.controls.costPerM2.value }}</span>
             </div>
-             <span style="font-size: 9px; font-weight: 900; color: #111; margin-left:-12px;">LYD</span>
+             <span style="font-size: 9px; font-weight: 700; color: #111; margin-left:-12px; margin-right: 1px;">LYD</span>
           </div>
           <div class="content-row">
             <div class="row-label">زمن تنفيذ المشروع</div>
@@ -475,78 +480,47 @@
   <div class="sec-header">
     <h3 class="sec-title">أسعار وزمن الإستشارات</h3>
     <span class="sec-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2">
          <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
       </svg>
     </span>
   </div>
+<div class="consult-container" *ngIf="consultRowsUI?.length">
 
-  <div class="consult-container">
+  <div 
+    *ngFor="let row of consultRowsUI; let i = index"
+    [ngClass]="{
+      'consult-big-row': i < 2 || i >= consultRowsUI.length - 2,
+      'consult-normal-row': i >= 2 && i < consultRowsUI.length - 2
+    }"
+  >
 
-    <div class="consult-row" *ngFor="let row of consultationRows" [class.is-center]="row.center">
-
-  <!-- لو Center -->
-  <ng-container *ngIf="row.center; else splitRow">
-    <div class="c-group c-group-center">
-      <div class="consult-item" *ngFor="let item of row.right">
-        <div class="c-badge" [ngClass]="item.color">{{ item.code }}</div>
-
-        <div class="c-inputs">
-          <div class="c-line">
-            <span class="c-lbl">LYD</span>
-            <div class="c-box">{{ item.price }}</div>
-          </div>
-          <div class="c-line">
-            <span class="c-lbl">شهر</span>
-            <div class="c-box">{{ item.time }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- لو Split (Row1 و Row4) -->
-  <ng-template #splitRow>
-    <div class="c-group c-group-right">
-      <div class="consult-item" *ngFor="let item of row.right">
-        <div class="c-badge" [ngClass]="item.color">{{ item.code }}</div>
+    <div class="consult-row">
+      <div class="consult-item" *ngFor="let sc of row">
+        <div class="c-badge purple">{{ sc.code }}</div>
 
         <div class="c-inputs">
           <div class="c-line">
             <span class="c-lbl">LYD</span>
-            <div class="c-box">{{ item.price }}</div>
+            <div class="c-box">{{ sc.project_price ?? sc.standard_price }}</div>
           </div>
           <div class="c-line">
-            <span class="c-lbl">شهر</span>
-            <div class="c-box">{{ item.time }}</div>
+            <span class="c-lbl">يوم</span>
+            <div class="c-box">{{ sc.project_duration_days ?? sc.standard_duration_days }}</div>
           </div>
         </div>
+
       </div>
     </div>
-
-    <div class="c-group c-group-left">
-      <div class="consult-item" *ngFor="let item of row.left">
-        <div class="c-badge" [ngClass]="item.color">{{ item.code }}</div>
-
-        <div class="c-inputs">
-          <div class="c-line">
-            <span class="c-lbl">LYD</span>
-            <div class="c-box">{{ item.price }}</div>
-          </div>
-          <div class="c-line">
-            <span class="c-lbl">شهر</span>
-            <div class="c-box">{{ item.time }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </ng-template>
-
-</div>
-
 
   </div>
+
 </div>
+
+
+</div>
+
 <!-- =======================
    Summary + Bank Accounts
 ======================= -->
@@ -565,7 +539,7 @@
 
         <div class="sum-input">
           <span class="sum-unit">LYD</span>
-          <input class="sum-field" type="text" value="200,000" />
+<input class="sum-field" type="text" [value]="totals.consultCost" readonly />
         </div>
       </div>
 
@@ -578,7 +552,7 @@
 
         <div class="sum-input">
           <span class="sum-unit">شهر</span>
-          <input class="sum-field" type="text" value="000" />
+<input class="sum-field" type="text" [value]="totals.consultDays" readonly />
         </div>
       </div>
     </div>
@@ -595,7 +569,7 @@
 
         <div class="sum-input">
           <span class="sum-unit">LYD</span>
-          <input class="sum-field" type="text" value="200,000" />
+<input class="sum-field" type="text" [value]="totals.supervisCost" readonly />
         </div>
       </div>
 
@@ -608,7 +582,7 @@
 
         <div class="sum-input">
           <span class="sum-unit">شهر</span>
-          <input class="sum-field" type="text" value="000" />
+<input class="sum-field" type="text" [value]="totals.supervisDays" readonly />
         </div>
       </div>
     </div>
