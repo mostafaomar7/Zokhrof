@@ -432,7 +432,7 @@
   align-items:center;
   justify-content:center;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 9.5px;
   color:#111;
   cursor:pointer;
 }
@@ -468,8 +468,7 @@
 .area-col .field-label{ margin-bottom: 0; }
 
 .area-input{
-  width: 100%;
-  min-width: 0;
+  width: 105%;
   height: 34px;
   border-radius: 4px;
   border: 1px solid var(--border);
@@ -477,7 +476,7 @@
   display:flex;
   align-items:center;
   gap: 8px;
-  padding: 4px 5px;
+  padding: 4px 1px;
 }
 .area-input.is-active{
   background: var(--active-yellow);
@@ -685,7 +684,7 @@
   align-items: stretch;
   direction: rtl;
   /* تحديد ارتفاع ثابت وصغير كما في الصورة الأخيرة */
-  height: 150px;
+  height: 190px;
 }
 
 /* =========================
@@ -704,7 +703,7 @@
   border: 1px solid #E5E7EB;
   border-radius: 14px;
   /* تقليل الحشو الداخلي جداً ليناسب الارتفاع الصغير */
-  padding: 0 12px;
+  padding: 5px 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1443,5 +1442,141 @@
   justify-content:center;
   gap:18px;
   width:100%;
+}
+.editable[contenteditable="true"]{
+  outline: none;
+  border: 2px solid #111;
+  border-radius: 10px;
+  padding: 6px 10px;
+  min-width: 40px;
+  display: inline-block;
+  background: #fff;
+}
+
+.editable[contenteditable="true"]:focus{
+  box-shadow: 0 0 0 3px rgba(0,0,0,.08);
+}
+.editable { white-space: nowrap; }
+/* خليك ماسك نفس شكل c-box (0 يوم) */
+.c-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;            /* قريب من اللي ظاهر بالصورة */
+  min-width: 44px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+/* input جوّه c-box يبقى شفاف ومايبانش كـ input */
+.c-box .c-box-input {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #111;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* شيل الأسهم بتاعت number لو بتضايق الشكل */
+.c-box-input::-webkit-outer-spin-button,
+.c-box-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.c-box-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* فوكس لطيف */
+.c-box:focus-within {
+  border-color: #7a4db3;   /* بنفس روح البنفسجي */
+  box-shadow: 0 0 0 2px rgba(122, 77, 179, 0.12);
+}
+/* ===== DASH INPUT (New, safe) ===== */
+.dash-input{
+  direction: rtl;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  border-radius: 10px;
+
+  min-width: 90px;        /* مهم عشان ما يتكمشش زي الصورة */
+  width: fit-content;
+  box-sizing: border-box;
+}
+
+.dash-input__field{
+  width: 54px;            /* عرض ثابت للرقم */
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+
+  text-align: center;
+  font-weight: 800;
+  font-size: 13px;
+  color: #111;
+
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Unit زي % و LYD */
+.dash-input__unit{
+  font-size: 11px;
+  font-weight: 800;
+  color: #111;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: .9;
+}
+
+/* شيل الأسهم بتاعت number */
+.dash-input__field::-webkit-outer-spin-button,
+.dash-input__field::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+.dash-input__field[type="number"]{
+  -moz-appearance: textfield;
+}
+
+/* Focus لطيف */
+.dash-input:focus-within{
+  border-color: #7a4db3;
+  box-shadow: 0 0 0 2px rgba(122, 77, 179, 0.12);
+}
+
+/* يخلي صفوف الكروت مرتبة */
+.content-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.row-label{
+  flex: 1;
+  text-align: right;
+}
+
+/* input ناحية الشمال (زي الصورة) */
+.content-row .dash-input{
+  flex: 0 0 auto;
 }
 

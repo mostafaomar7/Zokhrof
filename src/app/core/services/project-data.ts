@@ -92,5 +92,41 @@ filterProjects(params: {
 };
   }>(`${this.apiUrl}/v1/dashboard/project-data/filter?${qp.toString()}`);
 }
+// project-data.service.ts (additions)
+
+updateProjectDashboard(projectId: string, payload: {
+  covered_area_percentage: number;
+  number_of_floors: number;
+  cost_per_square_meter: number;
+  project_completion_time_percentage: number;
+}) {
+  return this.http.put(
+    `${this.apiUrl}/v1/dashboard/project-data/projects/${projectId}`,
+    payload
+  );
+}
+
+updateProjectSubConsultations(projectId: string, payload: {
+  items: Array<{
+    sub_consultation_id: string;
+    price_for_owner: number | null;
+    actual_duration_days: number | null;
+  }>;
+}) {
+  return this.http.put(
+    `${this.apiUrl}/v1/dashboard/project-data/projects/${projectId}/sub-consultations`,
+    payload
+  );
+}
+updateBankAccount(uuid: string, payload: {
+  account_name: string;
+  account_number: string;
+  iban: string;
+}) {
+  return this.http.put(
+    `${this.apiUrl}/v1/dashboard/project-data/bank-accounts/${uuid}`,
+    payload
+  );
+}
 
 }

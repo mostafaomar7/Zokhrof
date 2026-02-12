@@ -13,14 +13,15 @@ export const routes: Routes = [
     path: 'login',
     component: Login,
   },
-  {
-    path: 'dashboard',
-    canActivate: [authGuard], // ✅ حماية الداشبورد بالكامل
-    loadChildren: () =>
-      import('./features/dashboard/dashboard.module').then(
-        (m) => m.DashboardRoutingModule
-      ),
-  },
+ {
+  path: 'dashboard',
+  canActivate: [authGuard],
+  loadChildren: () =>
+    import('./features/dashboard/dashboard.module').then(
+      (m) => m.DashboardModule   // ✅ بدل DashboardRoutingModule
+    ),
+},
+
   {
     path: '**',
     redirectTo: '',

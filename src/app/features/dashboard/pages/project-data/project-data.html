@@ -200,203 +200,181 @@
      <div class="pd-main-inner">
       <div class="pd-section-white" >
 
-  <!-- Tabs -->
-  <div class="tabs-header" role="tablist">
-    <button class="tab"
-            type="button"
-            (click)="activeTab='project'"
-            [class.active]="activeTab==='project'">
-      بيانات المشروع
-    </button>
-        <button class="tab"
-            type="button"
-            (click)="activeTab='designer'"
-            [class.active]="activeTab==='designer'">
-      بيانات المصمم
-    </button>
-    <button class="tab"
-            type="button"
-            (click)="activeTab='dash'"
-            [class.active]="activeTab==='dash'">
-      بيانات لوحة التحكم
-    </button>
+
+
+<!-- Tabs -->
+<div class="tabs-header" role="tablist">
+  <button class="tab"
+          type="button"
+          (click)="activeTab='project'"
+          [class.active]="activeTab==='project'">
+    بيانات المشروع
+  </button>
+
+  <button class="tab"
+          type="button"
+          (click)="activeTab='designer'"
+          [class.active]="activeTab==='designer'">
+    بيانات المصمم
+  </button>
+
+  <button class="tab"
+          type="button"
+          (click)="activeTab='dash'"
+          [class.active]="activeTab==='dash'">
+    بيانات لوحة التحكم
+  </button>
+</div>
+
+<!-- Panels -->
+<div class="tabs-panels">
+
+  <div class="tab-panel" *ngIf="activeTab==='dash'">
+    <div class="panel-placeholder">محتوى بيانات لوحة التحكم (لسه)</div>
   </div>
 
-  <!-- Panels -->
-  <div class="tabs-panels">
+  <div class="tab-panel" *ngIf="activeTab==='designer'">
+    <div class="panel-placeholder">محتوى بيانات المصمم (لسه)</div>
+  </div>
 
-    <div class="tab-panel" *ngIf="activeTab==='dash'">
-      <div class="panel-placeholder">محتوى بيانات لوحة التحكم (لسه)</div>
-    </div>
+  <div class="tab-panel" *ngIf="activeTab==='project'">
 
-    <div class="tab-panel" *ngIf="activeTab==='designer'">
-      <div class="panel-placeholder">محتوى بيانات المصمم (لسه)</div>
-    </div>
+    <!-- Project Filters -->
+    <div class="project-details-grid" [formGroup]="projectForm">
 
-    <div class="tab-panel" *ngIf="activeTab==='project'">
-      <div class="project-details-grid" [formGroup]="projectForm">
+      <!-- مالك المشروع -->
+      <div class="field owner">
+        <label class="field-label">مالك المشروع</label>
+        <div class="stack">
+          <button type="button" class="chip"
+                  (click)="setValue('owner','GV')"
+                  [class.is-active]="projectForm.controls.owner.value==='GV'">
+            GV
+          </button>
 
-        <!-- مالك المشروع -->
-        <div class="field owner">
-          <label class="field-label">مالك المشروع</label>
-
-          <div class="stack">
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('owner','GV')"
-                    [class.is-active]="projectForm.controls.owner.value==='GV'">
-              GV
-            </button>
-
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('owner','IV')"
-                    [class.is-active]="projectForm.controls.owner.value==='IV'">
-              IV
-            </button>
-          </div>
+          <button type="button" class="chip"
+                  (click)="setValue('owner','IV')"
+                  [class.is-active]="projectForm.controls.owner.value==='IV'">
+            IV
+          </button>
         </div>
+      </div>
 
-        <!-- قطاع المشروع -->
-        <div class="field sector">
-  <label class="field-label">قطاع المشروع</label>
+      <!-- قطاع المشروع -->
+      <div class="field sector">
+        <label class="field-label">قطاع المشروع</label>
 
-  <div style="display:inline-flex; align-items:center; position:relative;">
-    <select
-      formControlName="sectorId"
-      style="
-        display:inline-flex;
-        align-items:center;
-        height: 80px;
-        padding: 0 10px 0 10px;   /* مساحة للسهم */
-        border-radius: 12px;
-        border: 2px solid #FFAD14;
-        background: #FFF600;
-        font-weight: 600;
-        cursor: pointer;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-      ">
-      <option [ngValue]="null" disabled>اختر القطاع</option>
-      <option *ngFor="let s of sectors" [value]="s.id">
-        {{ s.name_ar }}
-      </option>
-    </select>
+        <div style="display:inline-flex; align-items:center; position:relative;">
+          <select
+            formControlName="sectorId"
+            style="
+              display:inline-flex;
+              align-items:center;
+              height: 80px;
+              padding: 0 5px 0 5px;
+              border-radius: 12px;
+              border: 2px solid #FFAD14;
+              background: #FFF600;
+              font-weight: 600;
+              cursor: pointer;
+              -webkit-appearance: none;
+              -moz-appearance: none;
+              appearance: none;
+            ">
+            <option [ngValue]="null" disabled>اختر القطاع</option>
+            <option *ngFor="let s of sectors" [value]="s.id">
+              {{ s.name_ar }}
+            </option>
+          </select>
 
-    <span
-      aria-hidden="true"
-      style="
-        position:absolute;
-        inset-inline-end: 12px;  /* يشتغل مع RTL/LTR */
-        pointer-events:none;
-        font-size: 14px;
-        opacity: .7;
-      ">▾</span>
-  </div>
-</div>
-
-
-        <!-- نوع المشروع -->
-<div class="field project-type">
-  <label class="field-label">نوع المشروع</label>
-
-  <div class="stack">
-    <button
-      *ngFor="let t of projectTypes"
-      type="button"
-      class="chip"
-      (click)="setValue('projectTypeName', t)"
-      [class.is-active]="projectForm.controls.projectTypeName.value === t">
-      {{ t }}
-    </button>
-  </div>
-</div>
-
-
-<!-- اسم المشروع -->
-<div class="field project-name">
-  <label class="field-label">اسم المشروع</label>
-
-  <div class="stack">
-    <button
-      *ngFor="let n of projectNames"
-      type="button"
-      class="chip"
-      (click)="setValue('projectName', n)"
-      [class.is-active]="projectForm.controls.projectName.value === n">
-      {{ n }}
-    </button>
-  </div>
-</div>
-
-
-        <!-- حجم المشروع -->
-        <div class="field size">
-          <label class="field-label">حجم المشروع</label>
-
-          <div class="stack">
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('scale','SM')"
-                    [class.is-active]="projectForm.controls.scale.value==='SM'">
-              SM
-            </button>
-
-            <button type="button"
-                    class="chip"
-                    (click)="setValue('scale','LR')"
-                    [class.is-active]="projectForm.controls.scale.value==='LR'">
-              LR
-            </button>
-          </div>
+          <span aria-hidden="true"
+                style="
+                  position:absolute;
+                  inset-inline-end: 12px;
+                  pointer-events:none;
+                  font-size: 14px;
+                  opacity: .7;
+                ">▾</span>
         </div>
-
-        <!-- المساحة -->
-        <!-- المساحة (من / إلى) جنب بعض -->
-<div class="field area area--2">
-  <div class="area-two">
-
-    <!-- من -->
-    <div class="area-col">
-      <div class="field-label">من</div>
-
-      <div class="area-input is-active">
-        <span class="unit">m2</span>
-        <span class="num">{{ projectForm.controls.budgetFrom.value }}</span>
       </div>
 
-      <div class="area-input">
-        <span class="unit">m2</span>
-        <span class="num">{{ projectForm.controls.budgetFrom.value }}</span>
+      <!-- نوع المشروع -->
+      <div class="field project-type">
+        <label class="field-label">نوع المشروع</label>
+        <div class="stack">
+          <button *ngFor="let t of projectTypes"
+                  type="button"
+                  class="chip"
+                  (click)="setValue('projectTypeName', t)"
+                  [class.is-active]="projectForm.controls.projectTypeName.value === t">
+            {{ t }}
+          </button>
+        </div>
       </div>
+
+      <!-- اسم المشروع -->
+      <div class="field project-name">
+        <label class="field-label">اسم المشروع</label>
+        <div class="stack">
+          <button *ngFor="let n of projectNames"
+                  type="button"
+                  class="chip"
+                  (click)="setValue('projectName', n)"
+                  [class.is-active]="projectForm.controls.projectName.value === n">
+            {{ n }}
+          </button>
+        </div>
+      </div>
+
+      <!-- حجم المشروع -->
+      <div class="field size">
+        <label class="field-label">حجم المشروع</label>
+        <div class="stack">
+          <button type="button" class="chip"
+                  (click)="setValue('scale','SM')"
+                  [class.is-active]="projectForm.controls.scale.value==='SM'">
+            SM
+          </button>
+
+          <button type="button" class="chip"
+                  (click)="setValue('scale','LR')"
+                  [class.is-active]="projectForm.controls.scale.value==='LR'">
+            LR
+          </button>
+        </div>
+      </div>
+
+      <!-- المساحة -->
+      <div class="field area area--2">
+        <div class="area-two">
+
+          <div class="area-col">
+            <div class="field-label">من</div>
+            <div class="area-input is-active">
+              <span class="unit">m2</span>
+              <span class="num">{{ projectForm.controls.budgetFrom.value }}</span>
+            </div>
+          </div>
+
+          <div class="area-col">
+            <div class="field-label">إلى</div>
+            <div class="area-input is-active">
+              <span class="unit">m2</span>
+              <span class="num">{{ projectForm.controls.budgetTo.value }}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
-
-    <!-- إلى -->
-    <div class="area-col">
-      <div class="field-label">إلى</div>
-
-      <div class="area-input is-active">
-        <span class="unit">m2</span>
-        <span class="num">{{ projectForm.controls.budgetTo.value }}</span>
-      </div>
-
-      <div class="area-input">
-        <span class="unit">m2</span>
-        <span class="num">{{ projectForm.controls.budgetTo.value }}</span>
-      </div>
-    </div>
-
   </div>
+
 </div>
 
-      </div>
-    </div>
-
-  </div>
-</div>
-
+<!-- Dashboard + Timeline -->
 <div class="pd-section-white pd-section-white--mt">
+
 
   <div class="bottom-grid" [formGroup]="projectForm">
 
@@ -406,20 +384,24 @@
         <div class="card-title-section">
           <h4 class="card-main-title">قوانين مباني<br>المشروع</h4>
         </div>
+
         <div class="card-content-section">
           <div class="content-row">
             <div class="row-label">نسبة المساحة المغطاة</div>
-            <div class="custom-input">
-              <span class="curr">%</span>
-              <span class="val">{{ projectForm.controls.shadedRatio.value }}</span>
-            </div>
+
+            <div class="dash-input">
+  <input class="dash-input__field" type="number" formControlName="shadedRatio" inputmode="numeric" />
+  <span class="dash-input__unit">%</span>
+</div>
           </div>
+
           <div class="content-row">
             <div class="row-label">عدد الأدوار</div>
-            <div class="custom-input">
-              <span class="curr"></span>
-              <span class="val center-text">{{ projectForm.controls.floors.value }}</span>
-            </div>
+
+            <!-- عدد الأدوار -->
+<div class="dash-input">
+  <input class="dash-input__field" type="number" formControlName="floors" inputmode="numeric" />
+</div>
           </div>
         </div>
       </div>
@@ -428,21 +410,26 @@
         <div class="card-title-section">
           <h4 class="card-main-title">مؤشرات<br>المشروع</h4>
         </div>
+
         <div class="card-content-section">
           <div class="content-row">
             <div class="row-label">تكلفة تنفيذ المتر المربع</div>
-            <div class="custom-input">
-              <span class="curr"></span>
-              <span class="val">{{ projectForm.controls.costPerM2.value }}</span>
-            </div>
-             <span style="font-size: 9px; font-weight: 700; color: #111; margin-left:-12px; margin-right: 1px;">LYD</span>
+
+<!-- تكلفة تنفيذ المتر المربع -->
+<div class="dash-input">
+  <input class="dash-input__field" type="number" formControlName="costPerM2" inputmode="numeric" />
+  <span class="dash-input__unit">LYD</span>
+</div>
+
           </div>
+
           <div class="content-row">
             <div class="row-label">زمن تنفيذ المشروع</div>
-            <div class="custom-input">
-              <span class="curr">%</span>
-              <span class="val">{{ projectForm.controls.duration.value }}</span>
-            </div>
+
+           <div class="dash-input">
+  <input class="dash-input__field" type="number" formControlName="duration" inputmode="numeric" />
+  <span class="dash-input__unit">%</span>
+</div>
           </div>
         </div>
       </div>
@@ -461,9 +448,9 @@
 
         <div class="chart-grid-wrapper">
           <div class="grid-row" *ngFor="let r of chartRows">
-             <div class="grid-cell" *ngFor="let c of chartCols">
-                <div class="dot" [ngClass]="getDotClass(r, c)"></div>
-             </div>
+            <div class="grid-cell" *ngFor="let c of chartCols">
+              <div class="dot" [ngClass]="getDotClass(r, c)"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -475,6 +462,8 @@
 
   </div>
 </div>
+
+<!-- Consultations -->
 <div class="pd-section-white pd-section-white--mt">
 
   <div class="sec-header">
@@ -482,44 +471,63 @@
     <span class="sec-icon">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
            stroke="currentColor" stroke-width="2">
-         <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
       </svg>
     </span>
   </div>
-<div class="consult-container" *ngIf="consultRowsUI?.length">
 
-  <div 
-    *ngFor="let row of consultRowsUI; let i = index"
-    [ngClass]="{
-      'consult-big-row': i < 2 || i >= consultRowsUI.length - 2,
-      'consult-normal-row': i >= 2 && i < consultRowsUI.length - 2
-    }"
-  >
+  <div class="consult-container" *ngIf="consultRowsUI?.length">
+    <div *ngFor="let row of consultRowsUI; let i = index"
+         [ngClass]="{
+           'consult-big-row': i < 2 || i >= consultRowsUI.length - 2,
+           'consult-normal-row': i >= 2 && i < consultRowsUI.length - 2
+         }">
 
-    <div class="consult-row">
-      <div class="consult-item" *ngFor="let sc of row">
-        <div class="c-badge purple">{{ sc.code }}</div>
+      <div class="consult-row">
+        <div class="consult-item" *ngFor="let sc of row">
+          <div class="c-badge purple">{{ sc.code }}</div>
 
-        <div class="c-inputs">
-          <div class="c-line">
-            <span class="c-lbl">LYD</span>
-            <div class="c-box">{{ sc.project_price ?? sc.standard_price }}</div>
-          </div>
-          <div class="c-line">
-            <span class="c-lbl">يوم</span>
-            <div class="c-box">{{ sc.project_duration_days ?? sc.standard_duration_days }}</div>
-          </div>
-        </div>
+          <div class="c-inputs">
 
-      </div>
+  <div class="c-line">
+    <span class="c-lbl">LYD</span>
+
+    <div class="c-box">
+      <input
+        class="c-box-input"
+        type="number"
+        inputmode="numeric"
+        [value]="sc.project_price ?? sc.standard_price"
+        (input)="setConsultValue(sc,'project_price',$any($event.target).value)"
+      />
     </div>
+  </div>
 
+  <div class="c-line">
+    <span class="c-lbl">يوم</span>
+
+    <div class="c-box">
+      <input
+        class="c-box-input"
+        type="number"
+        inputmode="numeric"
+        [value]="sc.project_duration_days ?? sc.standard_duration_days"
+        (input)="setConsultValue(sc,'project_duration_days',$any($event.target).value)"
+      />
+    </div>
   </div>
 
 </div>
 
 
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div>
+
 
 <!-- =======================
    Summary + Bank Accounts
@@ -539,7 +547,7 @@
 
         <div class="sum-input">
           <span class="sum-unit">LYD</span>
-<input class="sum-field" type="text" [value]="totals.consultCost" readonly />
+<input class="sum-field" type="text" [value]="totals.consultCost" />
         </div>
       </div>
 
@@ -552,7 +560,7 @@
 
         <div class="sum-input">
           <span class="sum-unit">شهر</span>
-<input class="sum-field" type="text" [value]="totals.consultDays" readonly />
+<input class="sum-field" type="text" [value]="totals.consultDays"  />
         </div>
       </div>
     </div>
@@ -569,7 +577,7 @@
 
         <div class="sum-input">
           <span class="sum-unit">LYD</span>
-<input class="sum-field" type="text" [value]="totals.supervisCost" readonly />
+<input class="sum-field" type="text" [value]="totals.supervisCost"  />
         </div>
       </div>
 
@@ -582,7 +590,7 @@
 
         <div class="sum-input">
           <span class="sum-unit">شهر</span>
-<input class="sum-field" type="text" [value]="totals.supervisDays" readonly />
+<input class="sum-field" type="text" [value]="totals.supervisDays" />
         </div>
       </div>
     </div>
@@ -729,7 +737,7 @@
   </ng-container>
 </div>
 
-    </div> 
+    </div>
 
     <!-- Designer -->
     <div class="app-card">
@@ -764,7 +772,7 @@
   [digits]="4">
 </app-pass-key-footer>
      </div>
-
+</div>
 </main>
 
   <aside class="pd-sidebar" dir="rtl">
