@@ -18,7 +18,7 @@
   type="button"
   aria-label="حفظ"
   [disabled]="bankForm.invalid || savingBank"
-  (click)="saveBankAccounts()">
+  (click)="createAll()">
 
         <span class="pd-save-ic" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="127" height="88" viewBox="0 0 127 88" fill="none">
@@ -45,6 +45,7 @@
 
       <!-- CENTER: العنوان -->
       <div class="pd-brand">
+        <img src="/image2.png" alt="">
         <div class="pd-brand-name">الزخرف</div>
         <div class="pd-brand-sub">ليبيا</div>
       </div>
@@ -53,7 +54,7 @@
 <button class="pd-edit"
         type="button"
         [disabled]="subscriptionLoading"
-        (click)="updateAllSubscriptions()">
+        (click)="updateAll()">
 <span>
           <!-- ✅ SVG تعديل (اللي بعته) -->
           <svg xmlns="http://www.w3.org/2000/svg" width="127" height="88" viewBox="0 0 127 88" fill="none">
@@ -352,16 +353,13 @@
             <div class="field-label">من</div>
             <div class="area-input is-active">
               <span class="unit">m2</span>
-              <span class="num">{{ projectForm.controls.budgetFrom.value }}</span>
+              <span class="num">{{ projectForm.controls.budgetFrom.value }} <span style="margin-right: 5px; margin-left: 5px;">|</span> <span>{{ projectForm.controls.budgetTo.value }}</span> </span>
             </div>
           </div>
 
           <div class="area-col">
             <div class="field-label">إلى</div>
-            <div class="area-input is-active">
-              <span class="unit">m2</span>
-              <span class="num">{{ projectForm.controls.budgetTo.value }}</span>
-            </div>
+            
           </div>
 
         </div>
@@ -484,8 +482,12 @@
          }">
 
       <div class="consult-row">
-        <div class="consult-item" *ngFor="let sc of row">
-          <div class="c-badge purple">{{ sc.code }}</div>
+        <div class="consult-item" *ngFor="let sc of row; let j = index">
+  <div
+    class="c-badge"
+    [ngClass]="(i === consultRowsUI.length - 1 && j >= row.length - 3) ? 'orange' : 'purple'">
+    {{ sc.code }}
+  </div>
 
           <div class="c-inputs">
 
@@ -527,7 +529,6 @@
   </div>
 
 </div>
-
 
 <!-- =======================
    Summary + Bank Accounts
@@ -789,7 +790,7 @@
 
           <!-- status: icon RIGHT of text -->
           <div class="emp-status">
-            <span class="status-ico" aria-hidden="true">
+            <span class="status-ico ico" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24">
                 <path d="M13 10V3L4 14H11V21L20 10H13Z" fill="currentColor"></path>
               </svg>

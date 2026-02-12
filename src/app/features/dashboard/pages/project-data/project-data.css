@@ -16,7 +16,7 @@
   --ring:#2e7d32;
 
   --active-yellow:#FFF600;
-  --tab-ink:#6b7280;
+  --tab-ink:#423352;
   --tab-underline:#6b7280;
   --accent:#6b7280;
 }
@@ -57,19 +57,33 @@
 
 /* تعديل أماكن الأزرار لتكون نسبية وليست ثابتة بالبكسل */
 .pd-save { left: 20px; }
-.pd-edit { right: 20px; }
+.pd-edit { top: 40px; }
 
 /* Brand */
 .pd-brand{
   position:absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -35%);
+  transform: translate(-50%, -45%);
   text-align:center;
   color:#fff;
   line-height: 1.1;
 }
-
+.pd-brand-name{
+  font-weight: 800;
+  font-size: 14.78px;
+}
+.pd-brand img{
+  width: 42px;
+  height: 42px;
+  margin-bottom: 4px;
+}
+.pd-brand-sub{
+  color: #FFF600;
+  font-weight: 400;
+  font-size: 14.78px;
+  margin-top: 5px;
+}
 /* Buttons */
 .pd-save,
 .pd-edit{
@@ -134,14 +148,14 @@
 
 .emp-badge{
   position:absolute;
-  top: 10px;
+  top: 5px;
   right: 0;
   background:#ededf3;
-  border:1px solid #e1e2ea;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: 80px;
   font-size: 12px;
   color: var(--text);
+margin-bottom: 5px;
 }
 
 .emp-top{
@@ -175,9 +189,9 @@
   gap: 8px;
   color: var(--green);
   font-weight: 900;
-  font-size: 13px;
+  font-size: 14px;
 }
-.status-ico{ color: var(--green); }
+.status-ico{ color: var(--green); margin-top:5px; }
 
 .emp-line{
   display:flex;
@@ -186,6 +200,7 @@
   gap: 10px;
   font-size: 12px;
   color:#374151;
+  font-weight: 700;
 }
 .line-text{ overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -362,7 +377,7 @@
   background: transparent;
   border:0;
   cursor:pointer;
-  font-weight: 900;
+  font-weight: 700;
   color: var(--muted);
   padding: 6px 0;
   position: relative;
@@ -408,7 +423,7 @@
 .field-label{
   display:block;
   text-align:center;
-  font-weight: 900;
+  font-weight: 600;
   color:#111;
   font-size: 12px;
   margin-bottom: 8px;
@@ -421,28 +436,43 @@
   gap: 8px;
 }
 
-/* chips */
 .chip{
-  width: 102%;
-  height: 40px;
-  border-radius: 7px;
+  /* ✅ يخلي العرض على قد المحتوى بدل 100% */
+  width: fit-content;
+  max-width: 100%;
+
+  /* ✅ خلي الارتفاع مرن */
+  height: auto;
+  min-height: 34px;
+
+  /* ✅ بادينج معقول */
+  padding: 6px 12px;
+
+  border-radius: 6px;
   border: 1px solid var(--border);
   background:#fff;
-  display:flex;
+
+  display: inline-flex;
   align-items:center;
   justify-content:center;
+  width: 100%;
   font-weight: 700;
-  font-size: 9.5px;
+  font-size: 12px;
   color:#111;
   cursor:pointer;
+
+  /* ✅ امنع نزول الكلام تحت بعضه */
+  white-space: nowrap;
+  line-height: 1;
 }
+
 .chip.is-active{
   background: var(--active-yellow);
   border: 2px solid #FFAD14;
 }
 
 .chip--big{
-  height: 78px;
+  height: 68px;
   flex-direction: column;
   gap: 8px;
 }
@@ -480,23 +510,28 @@
 }
 .area-input.is-active{
   background: var(--active-yellow);
-  border-color: #e6d200;
+  border-color: #FFAD14;
+  width: 200%;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .area-input .unit{
-  font-size: 10px;
+  font-size: 14px;
   color:#111;
-  font-weight: 600;
+  font-weight: 700;
 }
 .area-input .num{
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color:#111;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
+.rate-star{
+  margin-top: 5px;
+}
 /* ترتيب الأعمدة */
 .field.owner        { grid-column: 1; }
 .field.sector       { grid-column: 2; }
@@ -667,10 +702,7 @@
   .rate-grid{ flex-direction: column; }
   .overall{ width: 100%; }
 }
-.field-label{
-  font-size: 11px !important;
-  font-weight: 500;
-}
+
 /* =========================
    Bottom Grid Layout
 ========================= */
@@ -746,7 +778,7 @@
 }
 
 .row-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   color: #374151;
   text-align: right;
@@ -989,10 +1021,11 @@
   display:grid;
   place-items:center;
   font-weight:700;
-  font-size:13px;
+  font-size:14px;
   color:#fff;
   box-shadow:0 4px 8px rgba(0,0,0,0.1);
   margin-bottom:4px;
+  margin-right: -8px;
 }
 .c-badge.purple{ background:#734E97; }
 .c-badge.orange{ background:#E29300; }
@@ -1426,7 +1459,7 @@
   display:grid;
   grid-template-columns: repeat(2, 1fr);
   gap:40px 60px; /* عمودي - أفقي */
-  width:90%;
+  width:100%;
   margin:auto;
 }
 

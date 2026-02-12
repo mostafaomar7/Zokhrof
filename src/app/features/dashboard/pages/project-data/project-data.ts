@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { forkJoin, Observable, of } from 'rxjs';
+import { finalize, map } from 'rxjs/operators';
 import { PassKeyFooterComponent } from '../pass-key-footer/pass-key-footer';
 import { ProjectDataService } from '../../../../core/services/project-data';
 
@@ -85,6 +87,22 @@ export class ProjectData implements OnInit {
     consult: { hasData: false, isEditing: false, loading: false },
     subs: { hasData: false, isEditing: false, loading: false },
     bank: { hasData: false, isEditing: false, loading: false },
+  };
+
+  // ✅ NEW: saved flags (عشان نفرّق بين حفظ أول مرة وتعديل بعدين)
+  private isSaved: Record<SectionKey, boolean> = {
+    dash: false,
+    consult: false,
+    subs: false,
+    bank: false,
+  };
+
+  // ✅ NEW: initial snapshots (عشان نعرف هل حصل تغيير ولا لأ)
+  private initial = {
+    dash: { shadedRatio: '0', floors: '0', costPerM2: '0', duration: '0' },
+    consultMap: new Map<string, { price: number | null; days: number | null }>(),
+    subsMap: new Map<string, number | null>(),
+    bankMap: new Map<number, { name: string; number: string; iban: string }>(),
   };
 
   private isZeroLike(v: any): boolean {
@@ -172,8 +190,8 @@ export class ProjectData implements OnInit {
     supervisDays: 0,
   };
 
-  // Dummy (unchanged) — not used in UI now
   consultationRows: ConsultRow[] = [];
+private _restoring = false;
 
   // ===== Init =====
   ngOnInit(): void {
@@ -182,8 +200,8 @@ export class ProjectData implements OnInit {
     this.loadSectors();
 
     // Reload sectors when owner/scale changes
-    this.projectForm.controls.owner.valueChanges.subscribe(() => this.loadSectors());
-    this.projectForm.controls.scale.valueChanges.subscribe(() => this.loadSectors());
+this.projectForm.controls.owner.valueChanges.subscribe(() => this.loadSectors(true));
+this.projectForm.controls.scale.valueChanges.subscribe(() => this.loadSectors(true));
 
     // sector -> templates
     this.projectForm.controls.sectorId.valueChanges.subscribe((sid) => {
@@ -191,14 +209,17 @@ export class ProjectData implements OnInit {
     });
 
     // type -> reset name + area + names list
-    this.projectForm.controls.projectTypeName.valueChanges.subscribe((t) => {
-      this.projectForm.patchValue(
-        { projectName: null, budgetFrom: '0', budgetTo: '0' },
-        { emitEvent: false }
-      );
-      this.projectNames = [];
-      if (t) this.loadNamesByType(t);
-    });
+   this.projectForm.controls.projectTypeName.valueChanges.subscribe((t) => {
+  if (!this._restoring) {
+    this.projectForm.patchValue(
+      { projectName: null, budgetFrom: '0', budgetTo: '0' },
+      { emitEvent: false }
+    );
+    this.projectNames = [];
+  }
+  if (t) this.loadNamesByType(t);
+});
+
 
     // projectName -> fill area + filter
     this.projectForm.controls.projectName.valueChanges.subscribe((name) => {
@@ -241,17 +262,26 @@ export class ProjectData implements OnInit {
   }
 
   // ===== Load sectors/templates =====
-  loadSectors() {
-    const owner = this.mapOwner(this.projectForm.controls.owner.value!);
-    const size = this.mapSize(this.projectForm.controls.scale.value!);
+loadSectors(preserveSelection = false) {
+  const owner = this.mapOwner(this.projectForm.controls.owner.value!);
+  const size  = this.mapSize(this.projectForm.controls.scale.value!);
 
-    // Reset
-    this.sectors = [];
-    this.templates = [];
-    this.projectTypes = [];
-    this.projectNames = [];
-    this.selectedProject = null;
+  // ✅ خزّني الاختيارات الحالية
+  const prev = preserveSelection ? {
+    sectorId: this.projectForm.controls.sectorId.value,
+    typeName: this.projectForm.controls.projectTypeName.value,
+    projectName: this.projectForm.controls.projectName.value,
+  } : { sectorId: null, typeName: null, projectName: null };
 
+  // Reset "خفيف": امسحي القوائم بس، مش الفورم كله
+  this.sectors = [];
+  this.templates = [];
+  this.projectTypes = [];
+  this.projectNames = [];
+  this.selectedProject = null;
+
+  // ❗️متصفريش sector/type/name هنا لو preserveSelection=true
+  if (!preserveSelection) {
     this.projectForm.patchValue({
       sectorId: null,
       projectTypeName: null,
@@ -263,81 +293,139 @@ export class ProjectData implements OnInit {
       costPerM2: '0',
       duration: '0',
     }, { emitEvent: false });
-
-    this.consultationCategories = [];
-    this.consultRowsUI = [];
-    this.timelinePhases = [];
-    this.totals = { consultCost: 0, consultDays: 0, supervisCost: 0, supervisDays: 0 };
-    this.sectionState.dash = { hasData: false, isEditing: false, loading: false };
-    this.sectionState.consult = { hasData: false, isEditing: false, loading: false };
-
-    this.projectDataService.getProjectTemplates({
-      owner_type: owner,
-      project_size: size,
-    }).subscribe({
-      next: (res) => {
-        const data = res?.data ?? [];
-        const map = new Map<string, any>();
-        data.forEach(t => {
-          const s = t.sector;
-          if (s?.id && !map.has(s.id)) map.set(s.id, s);
-        });
-        this.sectors = Array.from(map.values());
-      },
-    });
   }
 
-  loadTemplatesBySector(sectorId: string) {
-    const owner = this.mapOwner(this.projectForm.controls.owner.value!);
-    const size = this.mapSize(this.projectForm.controls.scale.value!);
+  // (لو محتاجة تصفير الداتا الكبيرة حتى مع preserveSelection خليها، بس ده بيرجّعك “من الأول”)
+  // الأفضل ما تمسحيش الاستشارات/التايملاين إلا لو فعلاً القطاع/النوع/الاسم اتغيروا.
 
-    this.templates = [];
-    this.projectTypes = [];
-    this.projectNames = [];
+  this.projectDataService.getProjectTemplates({
+    owner_type: owner,
+    project_size: size,
+  }).subscribe({
+    next: (res) => {
+  const data = res?.data ?? [];
+  const map = new Map<string, any>();
+  data.forEach(t => {
+    const s = t.sector;
+    if (s?.id && !map.has(s.id)) map.set(s.id, s);
+  });
+  this.sectors = Array.from(map.values());
 
+  const stillHasSector =
+    !!prev.sectorId && this.sectors.some(s => s.id === prev.sectorId);
+
+  // ✅ مهم جدًا: خزّني قبل setValue
+  this._pendingRestore = prev;
+
+  if (stillHasSector) {
+    this.projectForm.controls.sectorId.setValue(prev.sectorId); // emitEvent=true افتراضيًا
+  } else {
     this.projectForm.patchValue({
+      sectorId: null,
       projectTypeName: null,
       projectName: null,
       budgetFrom: '0',
       budgetTo: '0',
     }, { emitEvent: false });
-
-    this.projectDataService.getProjectTemplates({
-      owner_type: owner,
-      project_size: size,
-      sector_id: sectorId,
-    }).subscribe({
-      next: (res) => {
-        this.templates = res?.data ?? [];
-        const typeSet = new Set<string>();
-        this.templates.forEach(t => {
-          if (t.project_type_name) typeSet.add(t.project_type_name);
-        });
-        this.projectTypes = Array.from(typeSet);
-
-        if (this.projectTypes.length === 1) {
-          const onlyType = this.projectTypes[0];
-          this.projectForm.controls.projectTypeName.setValue(onlyType);
-          this.loadNamesByType(onlyType);
-        }
-      },
-    });
   }
+}
+,
+  });
+}
+
+// ✅ متغير مساعد
+private _pendingRestore: { sectorId: string|null; typeName: string|null; projectName: string|null } | null = null;
+
+  loadTemplatesBySector(sectorId: string) {
+  const owner = this.mapOwner(this.projectForm.controls.owner.value!);
+  const size  = this.mapSize(this.projectForm.controls.scale.value!);
+
+  const restore = this._pendingRestore; // اللي جاي من loadSectors()
+
+  this.templates = [];
+  this.projectTypes = [];
+  this.projectNames = [];
+
+  this.projectDataService.getProjectTemplates({
+    owner_type: owner,
+    project_size: size,
+    sector_id: sectorId,
+  }).subscribe({
+    next: (res) => {
+      this.templates = res?.data ?? [];
+
+      const typeSet = new Set<string>();
+      this.templates.forEach(t => {
+        if (t.project_type_name) typeSet.add(t.project_type_name);
+      });
+      this.projectTypes = Array.from(typeSet);
+
+      // ✅ رجّعي type لو لسه موجود (TypeScript-safe)
+      const prevType = restore?.typeName ?? null;
+
+      if (prevType && this.projectTypes.includes(prevType)) {
+  this._restoring = true;
+
+  this._pendingName = restore?.projectName ?? null;
+  this.projectForm.controls.projectTypeName.setValue(prevType); // هيفعل valueChanges
+  // loadNamesByType هيتنادى من subscription فوق (مش لازم تناديه هنا)
+  // لكن لو مصمّم تناديه هنا، سيبه وتمام.
+
+  this._restoring = false;
+}
+ else {
+        // النوع مش صالح
+        this.projectForm.patchValue(
+          {
+            projectTypeName: null,
+            projectName: null,
+            budgetFrom: '0',
+            budgetTo: '0',
+          },
+          { emitEvent: false }
+        );
+      }
+
+      this._pendingRestore = null;
+    },
+  });
+}
+
+
+private _pendingName: string | null = null;
+
 
   loadNamesByType(typeName: string) {
-    const nameSet = new Set<string>();
-    this.templates
-      .filter(t => t.project_type_name === typeName)
-      .forEach(t => nameSet.add(t.project_name));
+  const nameSet = new Set<string>();
+  this.templates
+    .filter(t => t.project_type_name === typeName)
+    .forEach(t => nameSet.add(t.project_name));
 
-    this.projectNames = Array.from(nameSet);
+  this.projectNames = Array.from(nameSet);
 
-    if (this.projectNames.length === 1) {
-      const onlyName = this.projectNames[0];
-      this.projectForm.controls.projectName.setValue(onlyName);
-      this.fillAreaFromTemplate();
-    }
+  const pending = this._pendingName;
+  this._pendingName = null;
+
+  const nameOk = !!pending && this.projectNames.includes(pending);
+
+  if (nameOk) {
+    this.projectForm.controls.projectName.setValue(pending);
+    this.fillAreaFromTemplate();
+    return;
   }
+
+  // fallback: لو اسم واحد بس
+  if (this.projectNames.length === 1) {
+    const onlyName = this.projectNames[0];
+    this.projectForm.controls.projectName.setValue(onlyName);
+    this.fillAreaFromTemplate();
+  } else {
+    // لو أكتر من اسم، سيبيه للمستخدم من غير ما تصفر بقية الدنيا
+    this.projectForm.controls.projectName.setValue(null, { emitEvent: false });
+    this.projectForm.patchValue({ budgetFrom: '0', budgetTo: '0' }, { emitEvent: false });
+  }
+}
+
 
   fillAreaFromTemplate() {
     const typeName = this.projectForm.controls.projectTypeName.value;
@@ -357,7 +445,6 @@ export class ProjectData implements OnInit {
     this.loadProjectDetailsFromFilter();
   }
 
-  // Keep your setValue signature (chips)
   setValue<K extends keyof ProjectData['projectForm']['controls']>(key: K, val: any) {
     this.projectForm.controls[key].setValue(val);
     this.projectForm.markAsDirty();
@@ -388,7 +475,8 @@ export class ProjectData implements OnInit {
     if (!matchedRow) return;
 
     const payload: any = {
-      owner_type: owner, // GV or IV
+      owner_type: this.mapOwner(owner as any),
+
       project_size: this.mapSizeForAPI(size as 'SM' | 'LR'),
       project_sector_id: sectorId,
       area_from: matchedRow.area_from,
@@ -440,8 +528,22 @@ export class ProjectData implements OnInit {
       duration: String(duration_val),
     }, { emitEvent: false });
 
+    // ✅ snapshot dash
+    this.initial.dash = {
+      shadedRatio: String(shaded),
+      floors: String(floors_count),
+      costPerM2: String(cost),
+      duration: String(duration_val),
+    };
+    // if server returned values => considered saved
+    this.isSaved.dash = this.hasAnyNonZero(this.initial.dash);
+
     this.consultationCategories = project?.consultation_fees_and_timeframes ?? [];
     this.rebuildConsultLayout();
+
+    // ✅ snapshot consult
+    this.captureConsultSnapshot();
+    this.isSaved.consult = this.sectionState.consult.hasData;
 
     this.timelinePhases = project?.project_timeline_phases ?? [];
     this.rebuildTimeline();
@@ -474,8 +576,19 @@ export class ProjectData implements OnInit {
       duration: String(duration),
     }, { emitEvent: false });
 
+    // ✅ snapshot dash
+    this.initial.dash = {
+      shadedRatio: String(shaded),
+      floors: String(floors),
+      costPerM2: String(cost),
+      duration: String(duration),
+    };
+    this.isSaved.dash = this.hasAnyNonZero(this.initial.dash);
+
     this.consultationCategories = summary?.consultation_fees_and_timeframes ?? [];
     this.rebuildConsultLayout();
+    this.captureConsultSnapshot();
+    this.isSaved.consult = this.sectionState.consult.hasData;
 
     this.timelinePhases = summary?.project_timeline_phases ?? [];
     this.rebuildTimeline();
@@ -541,6 +654,8 @@ export class ProjectData implements OnInit {
 
   setConsultValue(sc: any, field: 'project_price' | 'project_duration_days', value: string) {
     sc[field] = value;
+    // ✅ خليها dirty عند التعديل
+    sc.__dirty = true;
     this.showBankMessage('success', 'تم تعديل قيمة (لم يتم الحفظ بعد)');
   }
 
@@ -549,39 +664,63 @@ export class ProjectData implements OnInit {
     this.sectionState.dash.isEditing = true;
   }
 
-  saveDash() {
-    const projectId = this.selectedProject?.id;
-    if (!projectId) {
-      this.showBankMessage('error', 'لا يمكن الحفظ: لا يوجد Project ID');
-      return;
-    }
-    if (this.sectionState.dash.loading) return;
-
+  // ✅ بدل saveDash القديمة: خليها private وتشتغل حسب mode + dirty
+  private buildDashPayload() {
     const v = this.projectForm.value;
-    const payload = {
+    return {
       covered_area_percentage: Number(v.shadedRatio ?? 0),
       number_of_floors: Number(v.floors ?? 0),
       cost_per_square_meter: Number(v.costPerM2 ?? 0),
       project_completion_time_percentage: Number(v.duration ?? 0),
     };
+  }
+
+  private dashChanged(): boolean {
+    const v = this.projectForm.value;
+    return (
+      String(v.shadedRatio ?? '0') !== String(this.initial.dash.shadedRatio ?? '0') ||
+      String(v.floors ?? '0') !== String(this.initial.dash.floors ?? '0') ||
+      String(v.costPerM2 ?? '0') !== String(this.initial.dash.costPerM2 ?? '0') ||
+      String(v.duration ?? '0') !== String(this.initial.dash.duration ?? '0')
+    );
+  }
+
+  private saveDashInternal(): Observable<any> {
+    const projectId = this.selectedProject?.id;
+    if (!projectId) {
+      this.showBankMessage('error', 'لا يمكن الحفظ: لا يوجد Project ID');
+      return of(null);
+    }
+    if (this.sectionState.dash.loading) return of(null);
+
+    const payload = this.buildDashPayload();
 
     this.sectionState.dash.loading = true;
-    this.showBankMessage('success', 'جاري حفظ بيانات لوحة التحكم...');
 
-    // لازم تكون ضايف updateProjectDashboard في السيرفيس
-    this.projectDataService.updateProjectDashboard(projectId, payload).subscribe({
-      next: () => {
-        this.sectionState.dash.loading = false;
+    return this.projectDataService.updateProjectDashboard(projectId, payload).pipe(
+      finalize(() => (this.sectionState.dash.loading = false)),
+      map((res) => {
         this.sectionState.dash.isEditing = false;
-        this.sectionState.dash.hasData = this.hasAnyNonZero(payload);
+        this.sectionState.dash.hasData = this.hasAnyNonZero({
+          shadedRatio: this.projectForm.value.shadedRatio,
+          floors: this.projectForm.value.floors,
+          costPerM2: this.projectForm.value.costPerM2,
+          duration: this.projectForm.value.duration,
+        });
         this.projectForm.markAsPristine();
-        this.showBankMessage('success', 'تم حفظ بيانات لوحة التحكم بنجاح');
-      },
-      error: (err: HttpErrorResponse) => {
-        this.sectionState.dash.loading = false;
-        this.showBankMessage('error', this.getBackendErrorMessage(err));
-      }
-    });
+
+        // update snapshots
+        this.initial.dash = {
+          shadedRatio: String(this.projectForm.value.shadedRatio ?? '0'),
+          floors: String(this.projectForm.value.floors ?? '0'),
+          costPerM2: String(this.projectForm.value.costPerM2 ?? '0'),
+          duration: String(this.projectForm.value.duration ?? '0'),
+        };
+        this.isSaved.dash = true;
+
+        return res;
+      })
+    );
   }
 
   // ===== CONSULT Actions =====
@@ -589,51 +728,100 @@ export class ProjectData implements OnInit {
     this.sectionState.consult.isEditing = true;
   }
 
-  saveConsultOverrides() {
-    const projectId = this.selectedProject?.id;
-    if (!projectId) {
-      this.showBankMessage('error', 'لا يمكن الحفظ: لا يوجد Project ID');
-      return;
-    }
-    if (this.sectionState.consult.loading) return;
-
+  private captureConsultSnapshot() {
+    this.initial.consultMap.clear();
     const all = (this.consultationCategories ?? []).flatMap(c => c.sub_consultations ?? []);
-    const items = all.map(sc => ({
-      sub_consultation_id: String(sc.id ?? sc.sub_consultation_id),
-      price_for_owner: this.toNumberOrNull(sc.project_price ?? sc.price_for_owner),
-      actual_duration_days: this.toNumberOrNull(sc.project_duration_days ?? sc.actual_duration_days),
-    }));
-
-    this.sectionState.consult.loading = true;
-    this.showBankMessage('success', 'جاري حفظ أسعار وزمن الاستشارات...');
-
-    // لازم تكون ضايف updateProjectSubConsultations في السيرفيس
-    this.projectDataService.updateProjectSubConsultations(projectId, { items }).subscribe({
-      next: () => {
-        this.sectionState.consult.loading = false;
-        this.sectionState.consult.isEditing = false;
-        this.sectionState.consult.hasData = items.some(x => x.price_for_owner != null || x.actual_duration_days != null);
-        this.showBankMessage('success', 'تم حفظ الاستشارات بنجاح');
-      },
-      error: (err: HttpErrorResponse) => {
-        this.sectionState.consult.loading = false;
-        this.showBankMessage('error', this.getBackendErrorMessage(err));
-      }
+    all.forEach(sc => {
+      const id = String(sc.id ?? sc.sub_consultation_id);
+      const price = this.toNumberOrNull(sc.project_price ?? sc.price_for_owner);
+      const days = this.toNumberOrNull(sc.project_duration_days ?? sc.actual_duration_days);
+      this.initial.consultMap.set(id, { price, days });
     });
   }
 
+  private consultChanged(): boolean {
+    const all = (this.consultationCategories ?? []).flatMap(c => c.sub_consultations ?? []);
+    return all.some(sc => {
+      const id = String(sc.id ?? sc.sub_consultation_id);
+      const prev = this.initial.consultMap.get(id);
+      const price = this.toNumberOrNull(sc.project_price ?? sc.price_for_owner);
+      const days = this.toNumberOrNull(sc.project_duration_days ?? sc.actual_duration_days);
+
+      if (!prev) return (price != null || days != null);
+      return prev.price !== price || prev.days !== days || sc.__dirty === true;
+    });
+  }
+
+  private saveConsultInternal(mode: 'create' | 'update'): Observable<any> {
+    const projectId = this.selectedProject?.id;
+    if (!projectId) {
+      this.showBankMessage('error', 'لا يمكن الحفظ: لا يوجد Project ID');
+      return of(null);
+    }
+    if (this.sectionState.consult.loading) return of(null);
+
+    const all = (this.consultationCategories ?? []).flatMap(c => c.sub_consultations ?? []);
+    const items = all
+      .filter(sc => {
+        if (mode === 'create') return true;
+        // update: ابعت اللي اتغير فقط
+        const id = String(sc.id ?? sc.sub_consultation_id);
+        const prev = this.initial.consultMap.get(id);
+        const price = this.toNumberOrNull(sc.project_price ?? sc.price_for_owner);
+        const days = this.toNumberOrNull(sc.project_duration_days ?? sc.actual_duration_days);
+        if (!prev) return (price != null || days != null);
+        return prev.price !== price || prev.days !== days || sc.__dirty === true;
+      })
+      .map(sc => ({
+        sub_consultation_id: String(sc.id ?? sc.sub_consultation_id),
+        price_for_owner: this.toNumberOrNull(sc.project_price ?? sc.price_for_owner),
+        actual_duration_days: this.toNumberOrNull(sc.project_duration_days ?? sc.actual_duration_days),
+      }));
+
+    if (!items.length) return of(null);
+
+    this.sectionState.consult.loading = true;
+
+    return this.projectDataService.updateProjectSubConsultations(projectId, { items }).pipe(
+      finalize(() => (this.sectionState.consult.loading = false)),
+     map((res: any) => {
+  // ✅ طبّق البيانات الجديدة على الواجهة (هي فيها totals + consultation + timeline)
+  if (res?.data) {
+    this.applyProjectToUI(res.data);
+  }
+
+  this.sectionState.consult.isEditing = false;
+  this.isSaved.consult = true;
+
+  // clear dirty flags + refresh snapshot
+  const allLocal = (this.consultationCategories ?? []).flatMap(c => c.sub_consultations ?? []);
+  allLocal.forEach(sc => (sc.__dirty = false));
+  this.captureConsultSnapshot();
+
+  return res;
+})
+
+    );
+  }
+bankUuids: (string | null)[] = [null, null, null];
+
   // ===== BANK =====
-loadBankAccounts() {
+ loadBankAccounts() {
   this.projectDataService.getBankAccounts().subscribe({
     next: (res) => {
       const accounts: BankAccount[] = res?.data ?? [];
       const formArray = this.accountsArray;
       if (!formArray) return;
 
-      // reset enabling (خليها)
+      // ✅ reset uuids
+      this.bankUuids = [null, null, null];
+
       formArray.enable({ emitEvent: false });
 
+      // ✅ fill first 3 + store uuid
       accounts.slice(0, 3).forEach((acc, index) => {
+        this.bankUuids[index] = acc.id;
+
         const group = formArray.at(index);
         if (group) {
           group.patchValue(
@@ -650,10 +838,9 @@ loadBankAccounts() {
       this.sectionState.bank.hasData = accounts.length > 0;
       this.sectionState.bank.isEditing = !this.sectionState.bank.hasData;
 
-      // ❌ شيلنا disable عشان يفضلوا قابلين للكتابة
-      // if (accounts.length >= 3) {
-      //   formArray.disable({ emitEvent: false });
-      // }
+      // ✅ snapshot + pristine
+      this.captureBankSnapshot();
+      this.bankForm.markAsPristine();
     },
     error: (err: HttpErrorResponse) => {
       this.showBankMessage('error', this.getBackendErrorMessage(err));
@@ -661,56 +848,116 @@ loadBankAccounts() {
   });
 }
 
-  saveBankAccounts() {
-    this.bankMessage = null;
-    if (this.bankMsgTimer) {
-      clearTimeout(this.bankMsgTimer);
-      this.bankMsgTimer = null;
-    }
+private bankSnapshot = new Map<number, { name: string; number: string; iban: string }>();
 
-    if (this.savingBank) return;
-
-    const accounts = (this.bankForm.value.accounts ?? [])
-      .filter((acc): acc is { account_name: string; account_number: string; iban: string } =>
-        !!acc?.account_name && !!acc?.account_number && !!acc?.iban
-      )
-      .map((acc) => ({
-        account_name: acc.account_name.trim(),
-        account_number: acc.account_number.trim(),
-        iban: acc.iban.trim(),
-      }));
-
-    if (!accounts.length) {
-      this.showBankMessage('error', 'يرجى إدخال بيانات حساب بنكي واحد على الأقل');
-      return;
-    }
-
-    this.savingBank = true;
-    this.showBankMessage('success', 'جاري حفظ الحسابات البنكية...');
-
-    let completed = 0;
-    let hasError = false;
-
-    accounts.forEach((acc) => {
-      this.projectDataService.saveBankAccount(acc).subscribe({
-        next: () => {
-          completed++;
-          if (completed === accounts.length && !hasError) {
-            this.savingBank = false;
-            this.bankForm.markAsPristine();
-            this.sectionState.bank.hasData = true;
-            this.sectionState.bank.isEditing = false;
-            this.showBankMessage('success', 'تم حفظ الحسابات البنكية بنجاح');
-          }
-        },
-        error: (err: HttpErrorResponse) => {
-          hasError = true;
-          this.savingBank = false;
-          this.showBankMessage('error', this.getBackendErrorMessage(err));
-        },
-      });
+private captureBankSnapshot() {
+  this.bankSnapshot.clear();
+  this.accountsArray.controls.forEach((ctrl, i) => {
+    const v: any = ctrl.value ?? {};
+    this.bankSnapshot.set(i, {
+      name: String(v.account_name ?? '').trim(),
+      number: String(v.account_number ?? '').trim(),
+      iban: String(v.iban ?? '').trim(),
     });
-  }
+  });
+}
+
+private bankRowChanged(i: number): boolean {
+  const prev = this.bankSnapshot.get(i) ?? { name: '', number: '', iban: '' };
+  const v: any = this.accountsArray.at(i).value ?? {};
+  const now = {
+    name: String(v.account_name ?? '').trim(),
+    number: String(v.account_number ?? '').trim(),
+    iban: String(v.iban ?? '').trim(),
+  };
+  return prev.name !== now.name || prev.number !== now.number || prev.iban !== now.iban;
+}
+
+  private bankChanged(): boolean {
+  return this.accountsArray.controls.some((_, i) => this.bankRowChanged(i));
+}
+onDashInput(
+  key: 'shadedRatio' | 'floors' | 'costPerM2' | 'duration',
+  value: string
+) {
+  this.projectForm.controls[key].setValue(value);
+  this.projectForm.controls[key].markAsDirty();
+  this.projectForm.markAsDirty();
+}
+
+private saveBankInternal(mode: 'create' | 'update') {
+  // create: لو عندك بالفعل حسابات محفوظة، متضيفش
+  // (لو عايز تسمح بإضافة حساب 2 أو 3 لو فاضي، سيبها)
+  if (this.savingBank) return of(null);
+
+  // update: لازم يكون فيه تغييرات
+  if (mode === 'update' && !this.bankChanged()) return of(null);
+
+  const formArray = this.accountsArray;
+
+  // جهّز requests لكل صف متغير فقط
+  const reqs = formArray.controls
+    .map((ctrl, i) => ({ ctrl, i }))
+    .filter(x => x.ctrl.dirty) // ✅ ابعت المتغير بس
+    .map(x => {
+      const v: any = x.ctrl.value ?? {};
+      const payload = {
+        account_name: String(v.account_name ?? '').trim(),
+        account_number: String(v.account_number ?? '').trim(),
+        iban: String(v.iban ?? '').trim(),
+      };
+
+      // لو الصف فاضي -> متبعتش
+      if (!payload.account_name || !payload.account_number || !payload.iban) {
+        return of(null);
+      }
+
+      const uuid = this.bankUuids[x.i];
+
+      if (uuid) {
+        // ✅ UPDATE (PUT)
+        return this.projectDataService.updateBankAccount(uuid, payload);
+      }
+
+      // ✅ لو مفيش uuid يبقى ده Create (لو عندك POST)
+      // لو عندك saveBankAccount = POST:
+      if (this.projectDataService.saveBankAccount) {
+        return this.projectDataService.saveBankAccount(payload);
+      }
+
+      // لو مفيش endpoint إنشاء، امنع
+      return of(null);
+    });
+
+  // شيل null requests
+  const realReqs = reqs.filter(Boolean);
+
+  if (!realReqs.length) return of(null);
+
+  this.savingBank = true;
+
+  return forkJoin(realReqs).pipe(
+    finalize(() => (this.savingBank = false)),
+    map((results: any[]) => {
+      // ✅ لو حصل create ورجع id خزنه
+      // (لو API بتاع POST بيرجع data.id)
+      results.forEach((r, idx) => {
+        const dataId = r?.data?.id;
+        // مش دايمًا نقدر نحدد index الحقيقي من forkJoin لو في nulls
+        // فالأفضل بعد الحفظ تعمل reload من السيرفر
+      });
+
+      // safer: reload accounts to refresh uuids + pristine
+      this.loadBankAccounts();
+
+      this.sectionState.bank.hasData = true;
+      this.sectionState.bank.isEditing = false;
+
+      this.showBankMessage('success', mode === 'create' ? 'تم حفظ الحسابات البنكية' : 'تم تعديل الحسابات البنكية');
+      return results;
+    })
+  );
+}
 
   // ===== SUBSCRIPTIONS =====
   loadSubscriptionFees() {
@@ -724,11 +971,30 @@ loadBankAccounts() {
 
         this.sectionState.subs.hasData = (this.subscriptionFees ?? []).some(f => !this.isZeroLike(f.annual_fee));
         this.sectionState.subs.isEditing = false;
+
+        // ✅ saved + snapshot
+        this.isSaved.subs = this.sectionState.subs.hasData;
+        this.captureSubsSnapshot();
       },
       error: (err: HttpErrorResponse) => {
         this.subscriptionLoading = false;
         this.showBankMessage('error', this.getBackendErrorMessage(err));
       }
+    });
+  }
+
+  private captureSubsSnapshot() {
+    this.initial.subsMap.clear();
+    (this.subscriptionFees ?? []).forEach(f => {
+      this.initial.subsMap.set(String(f.id), this.toNumberOrNull(f.annual_fee));
+    });
+  }
+
+  private subsChanged(): boolean {
+    return (this.subscriptionFees ?? []).some(f => {
+      const prev = this.initial.subsMap.get(String(f.id));
+      const now = this.toNumberOrNull(f.annual_fee);
+      return prev !== now || f.__dirty === true;
     });
   }
 
@@ -742,43 +1008,268 @@ loadBankAccounts() {
     const fee = this.getFee(userType, type);
     if (fee) {
       fee.annual_fee = value;
+      fee.__dirty = true;
       this.showBankMessage('success', 'تم تعديل قيمة الإشتراك (لم يتم الحفظ بعد)');
     }
   }
 
-  updateAllSubscriptions() {
-    if (!this.subscriptionFees.length) {
-      this.showBankMessage('error', 'لا توجد بيانات اشتراك للتعديل');
+  private saveSubsInternal(mode: 'create' | 'update'): Observable<any> {
+    if (!this.subscriptionFees.length) return of(null);
+
+    if (mode === 'create' && this.isSaved.subs) return of(null);
+    if (mode === 'update' && !this.subsChanged()) return of(null);
+
+    if (this.subscriptionLoading) return of(null);
+    this.subscriptionLoading = true;
+
+    const changed = (this.subscriptionFees ?? []).filter(f => {
+      if (mode === 'create') return true;
+      const prev = this.initial.subsMap.get(String(f.id));
+      const now = this.toNumberOrNull(f.annual_fee);
+      return prev !== now || f.__dirty === true;
+    });
+
+    if (!changed.length) {
+      this.subscriptionLoading = false;
+      return of(null);
+    }
+
+    const calls = changed.map(fee =>
+      this.projectDataService.updateSubscriptionFee(fee.id, fee.annual_fee)
+    );
+
+    return forkJoin(calls).pipe(
+      finalize(() => (this.subscriptionLoading = false)),
+      map((res) => {
+        this.sectionState.subs.hasData = true;
+        this.sectionState.subs.isEditing = false;
+        this.isSaved.subs = true;
+
+        // clear dirty + snapshot
+        (this.subscriptionFees ?? []).forEach(f => (f.__dirty = false));
+        this.captureSubsSnapshot();
+
+        return res;
+      })
+    );
+  }
+
+  // =========================
+  // ✅ NEW: Unified Submit
+  // =========================
+  submit(mode: 'create' | 'update') {
+    // رسائل
+    this.bankMessage = null;
+    if (this.bankMsgTimer) {
+      clearTimeout(this.bankMsgTimer);
+      this.bankMsgTimer = null;
+    }
+
+    // build list of requests (only needed)
+    const reqs: Observable<any>[] = [];
+
+    // DASH: create => if not saved ; update => if changed
+    const dashShouldSend =
+      mode === 'create' ? !this.isSaved.dash : this.dashChanged();
+
+    if (dashShouldSend) {
+      this.showBankMessage('success', mode === 'create' ? 'جاري حفظ بيانات لوحة التحكم...' : 'جاري تعديل بيانات لوحة التحكم...');
+      reqs.push(this.saveDashInternal());
+    }
+
+    // CONSULT
+    const consultShouldSend =
+      mode === 'create' ? !this.isSaved.consult : this.consultChanged();
+
+    if (consultShouldSend) {
+      this.showBankMessage('success', mode === 'create' ? 'جاري حفظ أسعار وزمن الاستشارات...' : 'جاري تعديل أسعار وزمن الاستشارات...');
+      reqs.push(this.saveConsultInternal(mode));
+    }
+
+    // SUBS
+    const subsShouldSend =
+      mode === 'create' ? !this.isSaved.subs : this.subsChanged();
+
+    if (subsShouldSend) {
+      this.showBankMessage('success', mode === 'create' ? 'جاري حفظ الإشتراكات...' : 'جاري تعديل الإشتراكات...');
+      reqs.push(this.saveSubsInternal(mode));
+    }
+
+    // BANK
+    const bankShouldSend =
+      mode === 'create' ? !this.isSaved.bank : this.bankChanged();
+
+    if (bankShouldSend) {
+      this.showBankMessage('success', mode === 'create' ? 'جاري حفظ الحسابات البنكية...' : 'جاري تعديل الحسابات البنكية...');
+      reqs.push(this.saveBankInternal(mode));
+    }
+
+    // لو مفيش حاجة تتبعت
+    if (!reqs.length) {
+      this.showBankMessage('success', mode === 'create' ? 'لا يوجد بيانات جديدة للحفظ' : 'لا توجد تعديلات للحفظ');
       return;
     }
 
-    if (this.subscriptionLoading) return;
-
-    this.subscriptionLoading = true;
-    this.showBankMessage('success', 'جاري حفظ تعديلات الإشتراكات...');
-
-    let completed = 0;
-    let hasError = false;
-
-    this.subscriptionFees.forEach(fee => {
-      this.projectDataService
-        .updateSubscriptionFee(fee.id, fee.annual_fee)
-        .subscribe({
-          next: () => {
-            completed++;
-            if (completed === this.subscriptionFees.length && !hasError) {
-              this.subscriptionLoading = false;
-              this.sectionState.subs.hasData = true;
-              this.sectionState.subs.isEditing = false;
-              this.showBankMessage('success', 'تم تحديث الإشتراكات بنجاح');
-            }
-          },
-          error: (err: HttpErrorResponse) => {
-            hasError = true;
-            this.subscriptionLoading = false;
-            this.showBankMessage('error', this.getBackendErrorMessage(err) || 'حدث خطأ أثناء تحديث الإشتراكات');
-          }
-        });
+    forkJoin(reqs).subscribe({
+      next: () => {
+        this.showBankMessage('success', mode === 'create' ? 'تم الحفظ بنجاح' : 'تم التعديل بنجاح');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.showBankMessage('error', this.getBackendErrorMessage(err));
+      }
     });
   }
+
+  // ====== (OPTIONAL) keep old methods but route to submit ======
+  // لو مش هتغير الـ HTML:
+ saveBankAccounts() {
+  this.bankMessage = null;
+  if (this.bankMsgTimer) {
+    clearTimeout(this.bankMsgTimer);
+    this.bankMsgTimer = null;
+  }
+  if (this.savingBank) return;
+
+  // ✅ POST فقط للصفوف اللي مفيهاش uuid
+  const createReqs = this.accountsArray.controls
+    .map((ctrl, i) => ({ ctrl, i }))
+    .filter(x => !this.bankUuids[x.i]) // مفيش uuid => جديد
+    .filter(x => x.ctrl.dirty)        // اتغير
+    .map(x => {
+      const v: any = x.ctrl.value ?? {};
+      const payload = {
+        account_name: String(v.account_name ?? '').trim(),
+        account_number: String(v.account_number ?? '').trim(),
+        iban: String(v.iban ?? '').trim(),
+      };
+
+      if (!payload.account_name || !payload.account_number || !payload.iban) {
+        return null;
+      }
+
+      return this.projectDataService.saveBankAccount(payload);
+    })
+    .filter((x): x is any => !!x);
+
+  if (!createReqs.length) {
+    this.showBankMessage('success', 'لا يوجد حسابات جديدة للحفظ');
+    return;
+  }
+
+  this.savingBank = true;
+  this.showBankMessage('success', 'جاري حفظ الحسابات البنكية الجديدة...');
+
+  forkJoin(createReqs).subscribe({
+    next: () => {
+      this.savingBank = false;
+      this.showBankMessage('success', 'تم حفظ الحسابات البنكية بنجاح');
+
+      // ✅ مهم: reload عشان نجيب ids للحسابات الجديدة
+      this.loadBankAccounts();
+    },
+    error: (err: HttpErrorResponse) => {
+      this.savingBank = false;
+      this.showBankMessage('error', this.getBackendErrorMessage(err));
+    }
+  });
+}
+
+  updateAllSubscriptions() {
+    this.submit('update');
+  }
+  // =========================
+// ✅ Create = حفظ (POST فقط)
+// =========================
+createAll() {
+  // هنا "حفظ" معناه إنشاء فقط (POST)
+  // البنك فقط عندك POST
+  this.saveBankAccounts(); // ✅ POST only
+}
+
+// =========================
+// ✅ Update = تعديل (PUT فقط)
+// =========================
+updateAll() {
+  this.bankMessage = null;
+  if (this.bankMsgTimer) {
+    clearTimeout(this.bankMsgTimer);
+    this.bankMsgTimer = null;
+  }
+
+  const reqs: Observable<any>[] = [];
+
+  // DASH (PUT)
+  if (this.dashChanged()) reqs.push(this.saveDashInternal());
+
+  // CONSULT (PUT)
+  if (this.consultChanged()) reqs.push(this.saveConsultInternal('update'));
+
+  // SUBS (PUT)
+  if (this.subsChanged()) reqs.push(this.saveSubsInternal('update'));
+
+  // BANK (PUT)
+  // بدل ما تعمل forkJoin جوا updateBankAccounts، نضيفه هنا كـ Observable واحد:
+  reqs.push(this.updateBankAccountsInternal());
+
+  // شيل nulls (لو رجع of(null))
+  const realReqs = reqs.filter(Boolean);
+
+  // ✅ لو مفيش أي تعديل
+  if (!realReqs.length) {
+    this.showBankMessage('success', 'لا توجد تعديلات للحفظ');
+    return;
+  }
+
+  this.showBankMessage('success', 'جاري حفظ التعديلات...');
+
+  forkJoin(realReqs).subscribe({
+    next: () => {
+      this.showBankMessage('success', 'تم التعديل بنجاح');
+    },
+    error: (err: HttpErrorResponse) => {
+      this.showBankMessage('error', this.getBackendErrorMessage(err));
+    }
+  });
+}
+private updateBankAccountsInternal(): Observable<any> {
+  const updateReqs = this.accountsArray.controls
+    .map((ctrl, i) => ({ ctrl, i }))
+    .filter(x => !!this.bankUuids[x.i])     // عنده uuid
+    .filter(x => this.bankRowChanged(x.i))  // اتغير
+    .map(x => {
+      const v: any = x.ctrl.value ?? {};
+      const payload = {
+        account_name: String(v.account_name ?? '').trim(),
+        account_number: String(v.account_number ?? '').trim(),
+        iban: String(v.iban ?? '').trim(),
+      };
+      if (!payload.account_name || !payload.account_number || !payload.iban) return null;
+      return this.projectDataService.updateBankAccount(this.bankUuids[x.i]!, payload);
+    })
+    .filter((x): x is any => !!x);
+
+  if (!updateReqs.length) return of(null);
+
+  this.savingBank = true;
+
+  return forkJoin(updateReqs).pipe(
+    finalize(() => (this.savingBank = false)),
+    map((res) => {
+      // snapshot + pristine
+      this.captureBankSnapshot();
+      this.bankForm.markAsPristine();
+      this.accountsArray.controls.forEach(c => c.markAsPristine());
+      return res;
+    })
+  );
+}
+
+// لو لسه محتاج زر منفصل للبنك فقط:
+updateBankAccounts() {
+  this.updateBankAccountsInternal().subscribe({
+    next: () => this.showBankMessage('success', 'تم تعديل الحسابات البنكية بنجاح'),
+    error: (err: HttpErrorResponse) => this.showBankMessage('error', this.getBackendErrorMessage(err))
+  });
+}
+
 }
