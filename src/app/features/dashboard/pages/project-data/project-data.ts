@@ -174,7 +174,19 @@ export class ProjectData implements OnInit {
   savingBank = false;
 
   // ===== Dash/Timeline =====
-  chartRows = [5, 4, 3, 2, 1];
+  // في ملف .ts
+// اجعلها 6 صفوف بدلاً من 5
+chartRows = [6, 5, 4, 3, 2, 1]; 
+
+// ألوان المراحل الستة بالترتيب
+phaseColors = [
+  'dot-red',    // 1. Primary
+  'dot-green',  // 2. Topo
+  'dot-orange', // 3. Design
+  'dot-purple', // 4. Shop
+  'dot-blue',   // 5. Reports
+  'dot-dark'    // 6. Supervision (لون جديد للمرحلة السادسة)
+];
   chartCols = Array.from({ length: 30 }, (_, i) => i + 1);
   chartXAxis = Array.from({ length: 30 }, (_, i) => i + 1);
   timelinePhases: any[] = [];
@@ -520,7 +532,10 @@ private _pendingName: string | null = null;
       project?.project_indicators?.project_completion_time_percentage ??
       project?.project_completion_time_percentage ??
       '0';
-
+       const consultDays = project?.calculated_totals?.engineering_consultations?.total_duration_days || 0;
+  const supervisDays = project?.calculated_totals?.engineering_supervision?.total_duration_days || 0;
+  
+  this.totalProjectDays = consultDays + supervisDays;
     this.projectForm.patchValue({
       shadedRatio: String(shaded),
       floors: String(floors_count),
@@ -605,34 +620,49 @@ private _pendingName: string | null = null;
   }
 
   // ===== Timeline =====
-  private phaseSegments: { from: number; to: number }[] = [];
+private phaseSegments: { from: number; to: number; color: string; rowIndex: number }[] = [];
+private rebuildTimeline() {
+  const phases = this.selectedProject?.project_timeline_phases ?? [];
+  
+  // 1. حساب إجمالي الأيام
+  const totalDuration = phases.reduce((sum: number, p: any) => sum + (Number(p?.total_duration_days) || 0), 0);
 
-  private rebuildTimeline() {
-    const phases = this.timelinePhases ?? [];
-    const totalDays = phases.reduce((a, p) => a + Number(p?.total_duration_days ?? 0), 0);
-
-    if (!totalDays) {
-      this.phaseSegments = [];
-      return;
-    }
-
-    let cursor = 1;
-    this.phaseSegments = phases.map(p => {
-      const days = Number(p?.total_duration_days ?? 0);
-      const width = Math.max(1, Math.round((days / totalDays) * this.chartCols.length));
-      const seg = { from: cursor, to: Math.min(this.chartCols.length, cursor + width - 1) };
-      cursor = seg.to + 1;
-      return seg;
-    });
+  if (totalDuration === 0) {
+    this.phaseSegments = [];
+    return;
   }
 
-  getDotClass(row: number, col: number): string {
-    if (row !== 5) return '';
-    const idx = this.phaseSegments.findIndex(s => col >= s.from && col <= s.to);
-    if (idx === -1) return '';
-    return idx % 2 === 0 ? 'dot-green' : 'dot-purple';
-  }
+  const totalCols = this.chartCols.length; 
+  let currentStartCol = 1;
 
+  // الألوان بالترتيب
+  const colors = ['dot-red', 'dot-green', 'dot-orange', 'dot-purple', 'dot-blue', 'dot-dark'];
+
+  this.phaseSegments = phases.map((p: any, index: number) => {
+    const duration = Number(p?.total_duration_days) || 0;
+    
+    if (duration === 0) return null;
+
+    let span = Math.round((duration / totalDuration) * totalCols);
+    if (span < 1) span = 1;
+
+    const segment = {
+      rowIndex: index + 1,
+      from: currentStartCol,
+      to: Math.min(totalCols, currentStartCol + span - 1),
+      color: colors[index] || 'dot-gray'
+    };
+
+    currentStartCol += span;
+    return segment;
+  }).filter((s: any) => !!s) as any; // ✅ التعديل هنا: (s: any) واضافة as any في النهاية لتجنب مشاكل الأنواع
+}
+getDotClass(row: number, col: number): string {
+  // ✅ التصحيح هنا: استخدام s.rowIndex
+  const seg = this.phaseSegments.find(s => s.rowIndex === row && col >= s.from && col <= s.to);
+  
+  return seg ? seg.color : '';
+}
   // ===== Consult Layout =====
   private rebuildConsultLayout() {
     const allSubConsultations = (this.consultationCategories ?? [])
@@ -1271,5 +1301,7 @@ updateBankAccounts() {
     error: (err: HttpErrorResponse) => this.showBankMessage('error', this.getBackendErrorMessage(err))
   });
 }
+// عرف متغير في الكلاس فوق
+totalProjectDays: number = 0;
 
 }

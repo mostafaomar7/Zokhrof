@@ -438,9 +438,6 @@ margin-bottom: 5px;
 
 .chip{
   /* ✅ يخلي العرض على قد المحتوى بدل 100% */
-  width: fit-content;
-  max-width: 100%;
-
   /* ✅ خلي الارتفاع مرن */
   height: auto;
   min-height: 34px;
@@ -455,7 +452,7 @@ margin-bottom: 5px;
   display: inline-flex;
   align-items:center;
   justify-content:center;
-  width: 100%;
+  width: 112%;
   font-weight: 700;
   font-size: 12px;
   color:#111;
@@ -498,20 +495,19 @@ margin-bottom: 5px;
 .area-col .field-label{ margin-bottom: 0; }
 
 .area-input{
-  width: 105%;
   height: 34px;
   border-radius: 4px;
   border: 1px solid var(--border);
   background:#fff;
   display:flex;
   align-items:center;
+  justify-content: center;
   gap: 8px;
   padding: 4px 1px;
 }
 .area-input.is-active{
   background: var(--active-yellow);
-  border-color: #FFAD14;
-  width: 200%;
+  border: 2px solid #FFAD14;
   font-size: 14px;
   font-weight: 700;
 }
@@ -528,6 +524,37 @@ margin-bottom: 5px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* تعديل Large Input ليكون مرناً أكثر */
+.large-input {
+  width: 100%;
+  justify-content: center;
+  height: 45px;
+  /* تغيير حجم الخط ليكون متجاوباً */
+  font-size: 14px; /* تصغير الخط قليلاً */
+  padding: 0 40px; /* ترك مساحة للـ units يمين ويسار */
+  overflow: hidden; /* إخفاء الزيادة إن وجدت */
+}
+
+/* تنسيق الرقم */
+.large-input .num {
+  font-size: 14px; /* تصغير حجم الرقم */
+  font-weight: 800; /* زيادة السماكة للتعويض */
+  white-space: nowrap; /* منع النزول لسطر جديد */
+  overflow: hidden;
+  text-overflow: ellipsis; /* إضافة ... لو النص طويل جداً */
+  max-width: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* في حالة الشاشات الصغيرة جداً، صغر الخط أكثر */
+@media (max-width: 1200px) {
+    .large-input .num {
+        font-size: 12px;
+    }
 }
 .rate-star{
   margin-top: 5px;
@@ -892,11 +919,12 @@ margin-bottom: 5px;
   border-radius: 50%;
   background-color: #F3F4F6;
 }
-.dot-green { background-color: #22C55E; }
-.dot-purple { background-color: #A855F7; }
-.dot-red { background-color: #EF4444; }
-.dot-cyan { background-color: #06B6D4; }
-
+.dot-red { background-color: #e74c3c; }
+.dot-green { background-color: #2ecc71; }
+.dot-orange { background-color: #f39c12; }
+.dot-purple { background-color: #9b59b6; }
+.dot-blue { background-color: #3498db; }
+.dot-dark { background-color: #34495e; } /* للمرحلة السادسة */
 /* إظهار محور السينات (X-Axis) */
 .chart-x-axis {
   display: flex; /* إعادة العرض */
@@ -1612,4 +1640,49 @@ margin-bottom: 5px;
 .content-row .dash-input{
   flex: 0 0 auto;
 }
+/* نفس تنسيق الـ chip العادي لكن بلون باهت */
+.chip-placeholder {
+  background-color: #f0f0f0; /* لون رمادي فاتح */
+  color: #999;              /* لون نص رمادي */
+  border: 1px dashed #ccc;  /* حدود متقطعة لتدل على الفراغ */
+  cursor: default;          /* الماوس لا يتغير ليد */
+  pointer-events: none;     /* غير قابل للنقر */
+  min-width: 50px;         /* عرض مناسب ليملأ الفراغ */
+  text-align: center;
+  justify-content: center;
+}
+.sketch1{
+  position:absolute;
+  top:50%;
+  left:22%;
+  transform: translate(180%, 70%);
+}
+.sketch2{
+  position:absolute;
+  top:50%;
+  right:27%;
+  transform: translate(180%, 70%);
+}
+/* تنسيق للحاوية الجديدة عشان الانبوت الجديد ياخد راحته */
+.area-row-bottom {
+  width: 100%;
+  margin-top: 5px; /* مسافة صغيرة عن اللي فوقه */
+  animation: slideDown 0.3s ease-out; /* حركة ناعمة للظهور */
+}
 
+/* تنسيق المربع الكبير */
+.large-input {
+  width: 100%;
+  justify-content: center; /* يوسط الأرقام */
+  background-color: #FFF600; /* نفس لون الخلفية الأصفر المميز */
+  border: 2px solid #FFAD14; /* نفس البوردر */
+  height: 45px; /* ارتفاع مناسب */
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* حركة بسيطة عند الظهور (اختياري) */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

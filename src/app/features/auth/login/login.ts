@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
-
+import {  NgZone } from '@angular/core'; // 1. أضف NgZone
 @Component({
   selector: 'app-login',
   imports: [CommonModule, ReactiveFormsModule],
@@ -17,7 +17,7 @@ export class Login {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
-
+private ngZone = inject(NgZone);
   showPassword = false;
   isLoading = false;
   serverMessage = '';
@@ -60,16 +60,18 @@ export class Login {
 
     this.auth.login(this.form.getRawValue()).subscribe({
       next: (res) => {
-        this.isLoading = false;
-
-        if (res?.success && res?.data?.token) {
-          this.auth.setToken(res.data.token);
-          this.router.navigateByUrl('/dashboard');
-          return;
-        }
-
-        this.serverMessage = res?.message || 'فشل تسجيل الدخول.';
-      },
+  this.isLoading = false;
+  if (res?.success && res?.data?.token) {
+    this.auth.setToken(res.data.token);
+    
+    // 3. استخدم ngZone لضمان الانتقال
+    this.ngZone.run(() => {
+      this.router.navigate(['/dashboard']); // تأكد من اسم المسار الصحيح
+    });
+    return;
+  }
+  this.serverMessage = res?.message || 'فشل تسجيل الدخول.';
+},
 
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;

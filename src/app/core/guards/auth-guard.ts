@@ -5,12 +5,15 @@ import { inject } from '@angular/core';
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const token = localStorage.getItem('token');
+  
+  console.log('Guard Check - Token:', token); // أضف هذا السطر لمراقبة الـ Console
 
-  if (token) return true;
+  if (token && token !== 'undefined') {
+    return true;
+  }
 
-  router.navigate(['/login'], {
+  // إذا فشل، وجهه للوجين
+  return router.createUrlTree(['/login'], {
     queryParams: { returnUrl: state.url },
   });
-
-  return false;
 };

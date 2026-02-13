@@ -1,27 +1,72 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core'; // 1. استيراد OnInit, OnDestroy
 import { PassKeyFooterComponent } from '../pass-key-footer/pass-key-footer';
+
 type RowItem = {
   name: string;
   code: string;
   percent?: number;
-  action: string; // متابعة / اعتماد / إرسال
+  action: string;
 };
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule , PassKeyFooterComponent],
+  imports: [CommonModule, PassKeyFooterComponent],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home {
+// 2. تطبيق الـ Interfaces
+export class Home implements OnInit, OnDestroy {
+  
   // mock topbar
   notifications = 1;
   username = 'موظف 1';
-  dateText = '22 نوفمبر 2025';
-  timeText = '07:40';
+  
+  // 3. تعريف المتغيرات فارغة مبدئياً ليتم ملؤها تلقائياً
+  dateText: string = '';
+  timeText: string = '';
+  
+  // متغير لحفظ العداد
+  private timer: any;
 
+  // 4. دالة التشغيل عند بداية الكومبوننت
+  ngOnInit() {
+    this.updateDateTime(); // تشغيل فوري أول مرة
+    this.timer = setInterval(() => {
+      this.updateDateTime();
+    }, 1000); // تحديث كل ثانية (1000 ميلي ثانية)
+  }
+
+  // 5. دالة التنظيف عند الخروج من الكومبوننت
+  ngOnDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  // 6. دالة حساب الوقت والتاريخ
+  updateDateTime() {
+    const now = new Date();
+
+    // -- تنسيق الوقت (HH:mm) --
+    // padStart(2, '0') تضمن ظهور 07 بدلاً من 7
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    this.timeText = `${hours}:${minutes}`;
+
+    // -- تنسيق التاريخ (يوم شهر سنة) --
+    // استخدام ar-EG للحصول على أسماء الشهور العربية
+    const day = now.getDate();
+    const month = now.toLocaleDateString('ar-EG', { month: 'long' });
+    const year = now.getFullYear();
+    
+    // تجميع النص: 22 نوفمبر 2025
+    this.dateText = `${day} ${month} ${year}`;
+  }
+
+  // ... (باقي الكود الخاص بك كما هو دون تغيير) ...
+  
   // tabs
   leftSubsTab: 'owner' | 'designer' = 'owner';
   rightOutboxTab: 'owner' | 'designer' = 'owner';
@@ -33,7 +78,7 @@ export class Home {
     { name: 'فندق خاص كبير', percent: 50, code: 'TOR-25-IV-511', action: 'متابعة' },
     { name: 'مدرسة إعدادية كبيرة', percent: 100, code: 'EDU-25-GV-333', action: 'متابعة' },
   ];
-
+  // ... باقي المصفوفات والمنطق كما هو ...
   subsOwner: RowItem[] = [
     { name: 'مصنع غذائي كبير', code: 'MNF-25-GV-107', action: 'متابعة' },
     { name: 'مدرسة إعدادية كبيرة', code: 'EDU-25-GV-333', action: 'متابعة' },
@@ -46,8 +91,8 @@ export class Home {
   get subsList(): RowItem[] {
     return this.leftSubsTab === 'owner' ? this.subsOwner : this.subsDesigner;
   }
-
-  // RIGHT phone (admin)
+  // ... إلخ
+   // RIGHT phone (admin)
   outboxOwner: RowItem[] = [
     { name: 'مستشفى مركزي متوسط', code: 'HLT-25-GV-109', action: 'اعتماد' },
     { name: 'فندق خاص كبير', code: 'TOR-25-IV-511', action: 'اعتماد' },
@@ -115,5 +160,4 @@ subsDesigner2 = [
 get subsList2() {
   return this.leftSubsTab === 'owner' ? this.subsOwner2 : this.subsDesigner2;
 }
-
 }

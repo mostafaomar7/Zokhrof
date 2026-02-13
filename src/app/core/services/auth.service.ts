@@ -47,10 +47,13 @@ export class AuthService {
   setToken(token: string) {
     localStorage.setItem('token', token);
   }
-
-  getToken(): string | null {
-    return localStorage.getItem('token');
+getToken(): string | null {
+  const token = localStorage.getItem('token');
+  if (!token || token === 'undefined' || token === 'null') {
+    return null;
   }
+  return token;
+}
 
   logout() {
     localStorage.removeItem('token');

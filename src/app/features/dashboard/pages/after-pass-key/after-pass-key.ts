@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PassKeyFooterComponent } from '../pass-key-footer/pass-key-footer';
 
 type InboxItem = {
@@ -35,12 +35,51 @@ type RowItem = {
   templateUrl: './after-pass-key.html',
   styleUrl: './after-pass-key.css',
 })
-export class AfterPassKey {
+export class AfterPassKey implements OnInit, OnDestroy {
   // mock topbar
   notifications = 1;
   username = 'موظف 1';
-  dateText = '22 نوفمبر 2025';
-  timeText = '07:40';
+ dateText: string = '';
+  timeText: string = '';
+  
+  // متغير لحفظ العداد
+  private timer: any;
+
+  // 4. دالة التشغيل عند بداية الكومبوننت
+  ngOnInit() {
+    this.updateDateTime(); // تشغيل فوري أول مرة
+    this.timer = setInterval(() => {
+      this.updateDateTime();
+    }, 1000); // تحديث كل ثانية (1000 ميلي ثانية)
+  }
+
+  // 5. دالة التنظيف عند الخروج من الكومبوننت
+  ngOnDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  // 6. دالة حساب الوقت والتاريخ
+  updateDateTime() {
+    const now = new Date();
+
+    // -- تنسيق الوقت (HH:mm) --
+    // padStart(2, '0') تضمن ظهور 07 بدلاً من 7
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    this.timeText = `${hours}:${minutes}`;
+
+    // -- تنسيق التاريخ (يوم شهر سنة) --
+    // استخدام ar-EG للحصول على أسماء الشهور العربية
+    const day = now.getDate();
+    const month = now.toLocaleDateString('ar-EG', { month: 'long' });
+    const year = now.getFullYear();
+    
+    // تجميع النص: 22 نوفمبر 2025
+    this.dateText = `${day} ${month} ${year}`;
+  }
+
 
   // tabs
   leftSubsTab: 'owner' | 'designer' = 'owner';

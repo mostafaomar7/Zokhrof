@@ -425,7 +425,8 @@ section{
   align-items:center;
   direction: ltr;          /* ✅ RTL */
   flex-wrap: nowrap;
-  overflow: visible;       /* ✅ يمنع قصّ البادج */
+  overflow: visible;    
+  gap: 5px;   /* ✅ يمنع قصّ البادج */
 }
 
 /* العناصر العادية في الهيدر */

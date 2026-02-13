@@ -201,9 +201,8 @@
 
     </button>
 
-    <!-- التاريخ (بدون خلفية) -->
     <div class="h-item h-date" aria-label="التاريخ">
-      <span class="h-text">22 نوفمبر 2025</span>
+      <span class="h-text">{{ dateText }}</span>
       <svg class="h-ic" viewBox="0 0 24 24" aria-hidden="true">
         <rect x="3" y="5" width="18" height="16" rx="2"
               fill="none" stroke="currentColor" stroke-width="2"/>
@@ -212,9 +211,8 @@
       </svg>
     </div>
 
-    <!-- الوقت (الخلفية البيضاء فقط هنا) -->
     <div class="h-item time-chip" aria-label="الوقت">
-      <span class="h-text">07:40</span>
+      <span class="h-text">{{ timeText }}</span>
       <svg class="h-ic" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="9"
                 fill="none" stroke="currentColor" stroke-width="2"/>
