@@ -561,7 +561,7 @@ margin-bottom: 5px;
 }
 /* ترتيب الأعمدة */
 .field.owner        { grid-column: 1; }
-.field.sector       { grid-column: 2; }
+.field.sector       { grid-column: 2; width: 110%; }
 .field.project-type { grid-column: 3; }
 .field.project-name { grid-column: 4; }
 .field.size         { grid-column: 5; }
@@ -1685,4 +1685,141 @@ margin-bottom: 5px;
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
+}
+.area-row-top{
+  display:flex;
+  flex-direction:column;
+}
+
+.area-cols-labels{
+  display:flex;
+  justify-content:space-around;
+  margin-bottom: 0px;
+}
+
+.area-input--split{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:110%;
+  cursor:pointer;
+}
+
+.area-input--split .seg{
+  display:inline-flex;
+  align-items:center;
+  flex:1;
+}
+
+.area-input--split .divider{
+  color:#B3B3B3;
+}
+
+/* مهم: خلي شكل الـ pill زي اللي تحت (لو ده ستايل area-input الأساسي) */
+.area-input{
+  height: 32px;          /* عدّلها لو عندك مقاس مختلف */
+  border-radius: 6px;
+  border: 2px solid #FFAD14;
+  font-weight: 600;
+}
+.area-input.area-input--split{
+  position: relative;
+  display: flex;
+  width: 110%;
+  gap: 0;                 /* مهم */
+  justify-content: unset; /* مهم */
+}
+
+/* نصين قد بعض */
+.area-input.area-input--split > .seg{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* الفاصل الرفيع في النص */
+.area-input.area-input--split::before{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: #B3B3B3;
+  transform: translateX(-0.5px);
+  pointer-events: none;
+}
+/* default (غير active) */
+.area-input{
+  height: 32px;
+  border-radius: 6px;
+  border: 2px solid #E6E6E6;   /* رمادي */
+  background: #fff;            /* أبيض */
+  font-weight: 600;
+}
+
+/* active فقط */
+.area-input.is-active{
+  border-color: #FFAD14;
+  background: #FFF600;
+}
+/* الحاوية الكبرى للبوابة */
+.door-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999; /* لضمان ظهورها فوق كل شيء */
+  display: flex;
+  pointer-events: none; /* عشان ما يمنعش الضغط بعد ما يفتح */
+}
+
+/* النصف الواحد */
+.door {
+  width: 50%;
+  height: 100%;
+  background-color: white; /* لون البوابة */
+  transition: transform 1.2s cubic-bezier(0.7, 0, 0.3, 1); /* حركة ناعمة كأنها بوابة حقيقية */
+}
+
+/* حركة النصف الأيسر */
+.door-left {
+  border-right: 1px solid #eee; /* خط بسيط في المنتصف */
+  transform: translateX(0);
+}
+
+/* حركة النصف الأيمن */
+.door-right {
+  transform: translateX(0);
+}
+
+/* الأكشن عند البدء (كلاس التشغيل) */
+.door-overlay.is-open .door-left {
+  transform: translateX(-100%); /* يختفي يساراً */
+}
+
+.door-overlay.is-open .door-right {
+  transform: translateX(100%); /* يختفي يميناً */
+}
+.door img {
+  display: block;
+  /* امنع الصور إنها تخرج بره حدود النص بتاعها لو حجمها كبير */
+  max-width: none;
+}
+
+/* تأكد إن مفيش أي padding في الـ doors */
+.door {
+  padding: 0;
+  margin: 0;
+  overflow: hidden; /* عشان الصورة ماتعملش Scroll لو كبيرة */
+}
+
+/* حركة إضافية: لو عايز الصور تختفي تدريجياً (Fade out) وهي بتفتح */
+.door-overlay.is-open img {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
 }

@@ -1,3 +1,12 @@
+<div class="door-overlay" [class.is-open]="!isOpening">
+  <div class="door door-left" style="display: flex; justify-content: flex-end; align-items: center;">
+    <img src="halflogo.png" alt="" style="height: 150px; width: auto;">
+  </div>
+
+  <div class="door door-right" style="display: flex; justify-content: flex-start; align-items: center;">
+    <img src="halflogo1.png" alt="" style="height: 150px; width: auto;">
+  </div>
+</div>
 <div class="pd-page">
 
   <div class="pd-nav">
@@ -265,7 +274,7 @@
       <div class="field sector">
         <label class="field-label">قطاع المشروع</label>
 
-        <div style="display:inline-flex; align-items:center; position:relative;">
+        <div style="display:inline-flex; align-items:center; position:relative; width: 100%; ">
           <select
             formControlName="sectorId"
             style="
@@ -273,7 +282,7 @@
               align-items:center;
               height: 80px;
               padding: 0 5px 0 5px;
-              border-radius: 12px;
+              border-radius: 6px;
               border: 2px solid #FFAD14;
               background: #FFF600;
               font-weight: 600;
@@ -281,6 +290,7 @@
               -webkit-appearance: none;
               -moz-appearance: none;
               appearance: none;
+              width: 100%;
             ">
             <option [ngValue]="null" disabled>اختر القطاع</option>
             <option *ngFor="let s of sectors" [value]="s.id">
@@ -346,16 +356,16 @@
         <label class="field-label">حجم المشروع</label>
         <div class="stack">
           <button type="button" class="chip"
-                  (click)="setValue('scale','SM')"
-                  [class.is-active]="projectForm.controls.scale.value==='SM'">
-            SM
-          </button>
+        (click)="selectAreaAndFilter('SM')"
+        [class.is-active]="(projectForm.controls.areaScale.value ?? 'SM')==='SM'">
+  SM
+</button>
 
-          <button type="button" class="chip"
-                  (click)="setValue('scale','LR')"
-                  [class.is-active]="projectForm.controls.scale.value==='LR'">
-            LR
-          </button>
+<button type="button" class="chip"
+        (click)="selectAreaAndFilter('LR')"
+        [class.is-active]="(projectForm.controls.areaScale.value ?? 'SM')==='LR'">
+  LR
+</button>
         </div>
       </div>
 
@@ -363,47 +373,42 @@
       <div class="field area area--2">
         <div class="area-wrapper" style="display: flex; flex-direction: column; width: 100%;">
 
-          <div class="area-row-top" style="display: flex; gap: 5px; align-items: flex-end;">
-            
-            <div class="area-col" style="flex: 1;">
-              <div class="field-label">من</div>
-              <div class="area-input is-active" style="width: 120%;">
-                <span class="unit">m2</span>
-                <span class="num">
-                  {{ projectForm.controls.scale.value === 'SM' ? projectForm.controls.budgetFrom.value : '0' }}
-                </span>
-              </div>
-            </div>
+<div class="area-row-top" style="position:relative; z-index:2;">
+  <div class="area-cols-labels">
+    <div class="field-label">من</div>
+    <div class="field-label">إلى</div>
+  </div>
 
-            <div class="area-col" style="flex: 1;">
-              <div class="field-label">إلى</div>
-              <div class="area-input is-active" style="width: 120%;">
-                <span class="unit">m2</span>
-                <span class="num">
-                  {{ projectForm.controls.scale.value === 'SM' ? projectForm.controls.budgetTo.value : '0' }}
-                </span>
-              </div>
-            </div>
+<div class="area-input area-input--split"
+     (click)="selectAreaAndFilter('SM')"
+     [class.is-active]="projectForm.controls.areaScale.value === 'SM'">
 
-          </div>
+    <span class="seg">
+      <span class="unit">m2</span>
+      <span class="num">{{ getArea('SM').from }}</span>
+    </span>
 
-          <div class="area-row-bottom">
-            <div class="area-input is-active " style="width: 110%;" >
-              <span class="unit">m2</span>
-              
-              <span class="num" >
-                <ng-container *ngIf="projectForm.controls.scale.value === 'LR'; else zeroText">
-                  {{ projectForm.controls.budgetFrom.value }} 
-                  <span style="margin: 0 5px; color: #B3B3B3;">|</span> 
-                  {{ projectForm.controls.budgetTo.value }}
-                </ng-container>
-                
-                <ng-template #zeroText>0 : 0</ng-template>
-              </span>
+    <span class="seg">
+      <span class="unit">m2</span>
+      <span class="num">{{ getArea('SM').to }}</span>
+    </span>
 
-              <span class="unit" style="position: absolute; right: 10px;">m2</span>
-            </div>
-          </div>
+  </div>
+</div>
+
+<div class="area-row-bottom" style="position:relative; z-index:1; width: 110%;">
+ <div class="area-input"
+     (click)="selectAreaAndFilter('LR')"
+     [class.is-active]="projectForm.controls.areaScale.value === 'LR'">
+    <span class="unit">m2</span>
+
+    <span class="num">
+      {{ getArea('LR').from }}
+      <span style="margin:0 5px; color:#B3B3B3;">|</span>
+      {{ getArea('LR').to }}
+    </span>
+  </div>
+</div>
 
         </div>
       </div>
@@ -767,7 +772,7 @@
       <div class="app-rows">
   <ng-container *ngFor="let fee of subscriptionFees">
     <div class="app-row" *ngIf="fee.user_type === 'project_owner'">
-      <div class="app-row-label">{{ fee.subscription_type }}</div>
+      <div class="app-row-label">{{ fee.label_ar }}</div>
 
       <div class="app-row-input">
         <span class="app-unit">للإستشارة الواحدة</span>
@@ -791,7 +796,7 @@
       <div class="app-rows">
   <ng-container *ngFor="let fee of subscriptionFees">
     <div class="app-row" *ngIf="fee.user_type === 'project_designer'">
-      <div class="app-row-label">{{ fee.subscription_type }}</div>
+      <div class="app-row-label">{{ fee.label_ar }}</div>
 
       <div class="app-row-input">
         <span class="app-unit">سنوياً</span>

@@ -28,7 +28,17 @@ interface BankAccount {
 }
 
 type SectionKey = 'dash' | 'consult' | 'subs' | 'bank';
+type UserType = 'project_owner' | 'project_designer';
 
+interface SubscriptionFee {
+  id: string;
+  subscription_type: string;
+  label_ar?: string;
+  fee_type: string;
+  annual_fee: number | string;
+  user_type: UserType;
+  __dirty?: boolean;
+}
 @Component({
   selector: 'app-project-data',
   standalone: true,
@@ -132,6 +142,7 @@ export class ProjectData implements OnInit {
     projectTypeName: this.fb.control<string | null>(null, Validators.required),
     projectName: this.fb.control<string | null>(null, Validators.required),
     scale: this.fb.control<'SM' | 'LR'>('SM', Validators.required),
+    areaScale: this.fb.control<'SM' | 'LR' | null>(null),
 
     budgetFrom: this.fb.control('0'),
     budgetTo: this.fb.control('0'),
@@ -176,7 +187,7 @@ export class ProjectData implements OnInit {
   // ===== Dash/Timeline =====
   // في ملف .ts
 // اجعلها 6 صفوف بدلاً من 5
-chartRows = [6, 5, 4, 3, 2, 1]; 
+chartRows = [6, 5, 4, 3, 2, 1];
 
 // ألوان المراحل الستة بالترتيب
 phaseColors = [
@@ -190,6 +201,11 @@ phaseColors = [
   chartCols = Array.from({ length: 30 }, (_, i) => i + 1);
   chartXAxis = Array.from({ length: 30 }, (_, i) => i + 1);
   timelinePhases: any[] = [];
+minCols = 5;   // أقل حاجة تحب تظهرها
+maxCols = 60;  // حد أقصى عشان ال UI مايبقاش طويل قوي
+private clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
 
   // ===== Consultation =====
   consultationCategories: any[] = [];
@@ -204,16 +220,26 @@ phaseColors = [
 
   consultationRows: ConsultRow[] = [];
 private _restoring = false;
-
+isOpening = true;
   // ===== Init =====
   ngOnInit(): void {
+    setTimeout(() => {
+      const overlay = document.querySelector('.door-overlay');
+      overlay?.classList.add('is-open');
+
+      // إزالة العنصر تماماً من الـ DOM بعد انتهاء الأنميشن عشان ما يتقلش الصفحة
+      setTimeout(() => {
+        this.isOpening = false;
+      }, 1500);
+    }, 100);
+  
     this.loadBankAccounts();
     this.loadSubscriptionFees();
     this.loadSectors();
 
     // Reload sectors when owner/scale changes
 this.projectForm.controls.owner.valueChanges.subscribe(() => this.loadSectors(true));
-this.projectForm.controls.scale.valueChanges.subscribe(() => this.loadSectors(true));
+// امسح سطر scale.valueChanges بالكامل
 
     // sector -> templates
     this.projectForm.controls.sectorId.valueChanges.subscribe((sid) => {
@@ -232,13 +258,57 @@ this.projectForm.controls.scale.valueChanges.subscribe(() => this.loadSectors(tr
   if (t) this.loadNamesByType(t);
 });
 
+this.projectForm.controls.projectName.valueChanges.subscribe((name) => {
+  if (!name) return;
 
-    // projectName -> fill area + filter
-    this.projectForm.controls.projectName.valueChanges.subscribe((name) => {
-      if (!name) return;
-      this.fillAreaFromTemplate();
-    });
+  this.projectForm.patchValue(
+    { areaScale: null, scale: 'SM', budgetFrom: '0', budgetTo: '0' }, // أو scale: null لو تسمح
+    { emitEvent: false }
+  );
+});
+
   }
+getArea(scale: 'SM' | 'LR') {
+  const typeName = this.projectForm.controls.projectTypeName.value;
+  const name = this.projectForm.controls.projectName.value;
+  if (!typeName || !name) return { from: '0', to: '0' };
+
+  const list = scale === 'SM' ? this.templatesSM : this.templatesLR;
+  const row = list.find(t => t.project_type_name === typeName && t.project_name === name);
+
+  return { from: String(row?.area_from ?? '0'), to: String(row?.area_to ?? '0') };
+}
+private phaseDays(p: any): number {
+  const td = Number(p?.total_duration_days);
+  if (Number.isFinite(td) && td > 0) return td;
+
+  const subs = p?.sub_consultations ?? [];
+  return subs.reduce((sum: number, sc: any) => {
+    const d = Number(sc?.project_duration_days ?? sc?.actual_duration_days ?? sc?.standard_duration_days ?? 0);
+    return sum + (Number.isFinite(d) ? d : 0);
+  }, 0);
+}
+
+selectAreaAndFilter(scale: 'SM' | 'LR') {
+  const typeName = this.projectForm.controls.projectTypeName.value;
+  const projectName = this.projectForm.controls.projectName.value;
+  if (!typeName || !projectName) return;
+
+  const list = scale === 'SM' ? this.templatesSM : this.templatesLR;
+  const row = list.find(t => t.project_type_name === typeName && t.project_name === projectName);
+  if (!row) return;
+
+  this.projectForm.patchValue(
+    {
+      areaScale: scale,
+      budgetFrom: String(row.area_from ?? '0'),
+      budgetTo: String(row.area_to ?? '0'),
+    },
+    { emitEvent: false }
+  );
+
+  this.loadProjectDetailsFromFilterUsingRow(row, scale);
+}
 
   // ===== Templates mapping =====
   private mapOwner(owner: 'GV' | 'IV') {
@@ -344,127 +414,117 @@ loadSectors(preserveSelection = false) {
 ,
   });
 }
+private templatesByScale(scale?: 'SM' | 'LR') {
+  const s = scale ?? (this.projectForm.controls.scale.value ?? 'SM');
+  return s === 'SM' ? this.templatesSM : this.templatesLR;
+}
 
 // ✅ متغير مساعد
 private _pendingRestore: { sectorId: string|null; typeName: string|null; projectName: string|null } | null = null;
 
-  loadTemplatesBySector(sectorId: string) {
+loadTemplatesBySector(sectorId: string) {
   const owner = this.mapOwner(this.projectForm.controls.owner.value!);
-  const size  = this.mapSize(this.projectForm.controls.scale.value!);
 
-  const restore = this._pendingRestore; // اللي جاي من loadSectors()
+  forkJoin({
+    sm: this.projectDataService.getProjectTemplates({ owner_type: owner, project_size: 'small', sector_id: sectorId }),
+    lr: this.projectDataService.getProjectTemplates({ owner_type: owner, project_size: 'large', sector_id: sectorId }),
+  }).subscribe(({ sm, lr }) => {
+    this.templatesSM = sm?.data ?? [];
+    this.templatesLR = lr?.data ?? [];
 
-  this.templates = [];
-  this.projectTypes = [];
-  this.projectNames = [];
+    // اتحاد للتايبس
+    this.templates = [...this.templatesSM, ...this.templatesLR];
 
-  this.projectDataService.getProjectTemplates({
-    owner_type: owner,
-    project_size: size,
-    sector_id: sectorId,
-  }).subscribe({
-    next: (res) => {
-      this.templates = res?.data ?? [];
+    const typeSet = new Set<string>();
+    this.templates.forEach(t => t.project_type_name && typeSet.add(t.project_type_name));
+    this.projectTypes = Array.from(typeSet);
 
-      const typeSet = new Set<string>();
-      this.templates.forEach(t => {
-        if (t.project_type_name) typeSet.add(t.project_type_name);
-      });
-      this.projectTypes = Array.from(typeSet);
+    // reset type/name/area
+    this.projectForm.patchValue(
+      { projectTypeName: null, projectName: null, budgetFrom: '0', budgetTo: '0' },
+      { emitEvent: false }
+    );
 
-      // ✅ رجّعي type لو لسه موجود (TypeScript-safe)
-      const prevType = restore?.typeName ?? null;
-
-      if (prevType && this.projectTypes.includes(prevType)) {
-  this._restoring = true;
-
-  this._pendingName = restore?.projectName ?? null;
-  this.projectForm.controls.projectTypeName.setValue(prevType); // هيفعل valueChanges
-  // loadNamesByType هيتنادى من subscription فوق (مش لازم تناديه هنا)
-  // لكن لو مصمّم تناديه هنا، سيبه وتمام.
-
-  this._restoring = false;
-}
- else {
-        // النوع مش صالح
-        this.projectForm.patchValue(
-          {
-            projectTypeName: null,
-            projectName: null,
-            budgetFrom: '0',
-            budgetTo: '0',
-          },
-          { emitEvent: false }
-        );
-      }
-
-      this._pendingRestore = null;
-    },
+    this.projectNames = [];
+    this.selectedProject = null;
   });
 }
 
-
 private _pendingName: string | null = null;
 
-
-  loadNamesByType(typeName: string) {
+loadNamesByType(typeName: string) {
   const nameSet = new Set<string>();
-  this.templates
+
+  // ✅ هات الأسماء من الاتنين
+  [...this.templatesSM, ...this.templatesLR]
     .filter(t => t.project_type_name === typeName)
     .forEach(t => nameSet.add(t.project_name));
 
   this.projectNames = Array.from(nameSet);
 
-  const pending = this._pendingName;
-  this._pendingName = null;
-
-  const nameOk = !!pending && this.projectNames.includes(pending);
-
-  if (nameOk) {
-    this.projectForm.controls.projectName.setValue(pending);
-    this.fillAreaFromTemplate();
-    return;
-  }
-
-  // fallback: لو اسم واحد بس
+  // ✅ مهم: متعملش fillAreaFromTemplate هنا خالص
+  // ولو في auto select اسم واحد، سيبه يختار الاسم بس
   if (this.projectNames.length === 1) {
-    const onlyName = this.projectNames[0];
-    this.projectForm.controls.projectName.setValue(onlyName);
-    this.fillAreaFromTemplate();
+    this.projectForm.controls.projectName.setValue(this.projectNames[0]);
   } else {
-    // لو أكتر من اسم، سيبيه للمستخدم من غير ما تصفر بقية الدنيا
     this.projectForm.controls.projectName.setValue(null, { emitEvent: false });
-    this.projectForm.patchValue({ budgetFrom: '0', budgetTo: '0' }, { emitEvent: false });
   }
+
+  // ✅ ودايمًا صفّر areaScale عشان مفيش active
+  this.projectForm.patchValue({ areaScale: null, budgetFrom: '0', budgetTo: '0' }, { emitEvent: false });
 }
 
+fillAreaFromTemplate() {
+  const typeName = this.projectForm.controls.projectTypeName.value;
+  const name = this.projectForm.controls.projectName.value;
+  if (!typeName || !name) return;
 
-  fillAreaFromTemplate() {
-    const typeName = this.projectForm.controls.projectTypeName.value;
-    const name = this.projectForm.controls.projectName.value;
-    if (!typeName || !name) return;
+  const size = this.projectForm.controls.scale.value ?? 'SM';
+  const currentArea = this.projectForm.controls.areaScale.value ?? size;
 
-    const row = this.templates.find(t =>
-      t.project_type_name === typeName && t.project_name === name
-    );
-    if (!row) return;
+  const list = this.templatesByScale(currentArea);
+  const row = list.find(t => t.project_type_name === typeName && t.project_name === name);
+  if (!row) return;
 
-    this.projectForm.patchValue({
-      budgetFrom: row.area_from ?? '0',
-      budgetTo: row.area_to ?? '0',
-    }, { emitEvent: false });
+  this.projectForm.patchValue({
+    areaScale: currentArea,
+    budgetFrom: String(row.area_from ?? '0'),
+    budgetTo: String(row.area_to ?? '0'),
+  }, { emitEvent: false });
 
-    this.loadProjectDetailsFromFilter();
-  }
+  this.loadProjectDetailsFromFilterUsingRow(row, currentArea);
+}
+private loadProjectDetailsFromFilterUsingRow(matchedRow: any, scale: 'SM' | 'LR') {
+  const owner = this.projectForm.controls.owner.value;
+  const sectorId = this.projectForm.controls.sectorId.value;
+  if (!owner || !sectorId) return;
+
+  const payload: any = {
+    owner_type: this.mapOwner(owner),
+    project_size: scale === 'SM' ? 'small' : 'large',
+    project_sector_id: sectorId,
+    area_from: matchedRow.area_from,
+    area_to: matchedRow.area_to,
+    project_type_id: matchedRow.project_type_id || matchedRow.project_type?.id,
+    project_specialization_id: matchedRow.project_specialization_id || matchedRow.specialization?.id,
+  };
+
+  this.projectDataService.filterProjects(payload).subscribe({
+    next: (res) => {
+      const data = res?.data;
+      if (data?.projects?.length > 0) this.applyProjectToUI(data.projects[0]);
+      else {
+        this.selectedProject = null;
+        this.applyBaseSummaryToUI(data?.base_consultation_summary);
+      }
+    }
+  });
+}
 
   setValue<K extends keyof ProjectData['projectForm']['controls']>(key: K, val: any) {
     this.projectForm.controls[key].setValue(val);
     this.projectForm.markAsDirty();
 
-    if (key === 'projectName') {
-      this.fillAreaFromTemplate();
-      Promise.resolve().then(() => this.loadProjectDetailsFromFilter());
-    }
   }
 
   // ===== Filter =====
@@ -534,7 +594,7 @@ private _pendingName: string | null = null;
       '0';
        const consultDays = project?.calculated_totals?.engineering_consultations?.total_duration_days || 0;
   const supervisDays = project?.calculated_totals?.engineering_supervision?.total_duration_days || 0;
-  
+
   this.totalProjectDays = consultDays + supervisDays;
     this.projectForm.patchValue({
       shadedRatio: String(shaded),
@@ -561,6 +621,8 @@ private _pendingName: string | null = null;
     this.isSaved.consult = this.sectionState.consult.hasData;
 
     this.timelinePhases = project?.project_timeline_phases ?? [];
+    const phases = this.timelinePhases.filter(p => (Number(p?.total_duration_days) || 0) > 0);
+this.totalProjectDays = phases.reduce((s: number, p: any) => s + (Number(p?.total_duration_days) || 0), 0);
     this.rebuildTimeline();
 
     if (project?.calculated_totals) {
@@ -621,48 +683,92 @@ private _pendingName: string | null = null;
 
   // ===== Timeline =====
 private phaseSegments: { from: number; to: number; color: string; rowIndex: number }[] = [];
+
 private rebuildTimeline() {
-  const phases = this.selectedProject?.project_timeline_phases ?? [];
-  
-  // 1. حساب إجمالي الأيام
-  const totalDuration = phases.reduce((sum: number, p: any) => sum + (Number(p?.total_duration_days) || 0), 0);
+  const raw = this.selectedProject?.project_timeline_phases ?? [];
+  const phases: any[] = raw.filter((p: any) => (Number(p?.total_duration_days) || 0) > 0);
+
+const totalDuration: number = phases.reduce(
+  (sum: number, p: any) => sum + (Number(p?.total_duration_days) || 0),
+  0
+);
+
 
   if (totalDuration === 0) {
     this.phaseSegments = [];
     return;
   }
 
-  const totalCols = this.chartCols.length; 
+const totalCols = this.clamp(totalDuration, this.minCols, this.maxCols);
+  const colors: string[] = ['dot-red','dot-green','dot-orange','dot-purple','dot-blue','dot-dark'];
+this.chartCols = Array.from({ length: totalCols }, (_, i) => i + 1);
+this.chartXAxis = Array.from({ length: totalCols }, (_, i) => i + 1);
+  // 1) ratios + base spans
+  const ratios: number[] = phases.map((p: any) =>
+    ((Number(p?.total_duration_days) || 0) / totalDuration) * totalCols
+  );
+
+  const spans: number[] = ratios.map((r: number) => Math.floor(r));
+
+  // 2) at least 1
+  for (let i = 0; i < spans.length; i++) {
+    if (spans[i] < 1) spans[i] = 1;
+  }
+
+  // 3) adjust to exactly totalCols
+  let used: number = spans.reduce((a: number, b: number) => a + b, 0);
+
+  // لو زيادة: نقص من أكبر spans
+  while (used > totalCols) {
+    let maxIndex = 0;
+    for (let i = 1; i < spans.length; i++) {
+      if (spans[i] > spans[maxIndex]) maxIndex = i;
+    }
+    spans[maxIndex] = Math.max(1, spans[maxIndex] - 1);
+    used--;
+  }
+
+  // لو ناقص: زوّد للـ phases ذات remainder الأكبر
+  if (used < totalCols) {
+    type RemItem = { i: number; rem: number };
+
+    const remainders: RemItem[] = ratios
+      .map((r: number, i: number) => ({ i, rem: r - Math.floor(r) }))
+      .sort((a: RemItem, b: RemItem) => b.rem - a.rem);
+
+    let k = 0;
+    while (used < totalCols) {
+      const idx = remainders[k % remainders.length].i;
+      spans[idx]++;
+      used++;
+      k++;
+    }
+  }
+
+  // 4) build segments
   let currentStartCol = 1;
-
-  // الألوان بالترتيب
-  const colors = ['dot-red', 'dot-green', 'dot-orange', 'dot-purple', 'dot-blue', 'dot-dark'];
-
   this.phaseSegments = phases.map((p: any, index: number) => {
-    const duration = Number(p?.total_duration_days) || 0;
-    
-    if (duration === 0) return null;
-
-    let span = Math.round((duration / totalDuration) * totalCols);
-    if (span < 1) span = 1;
-
-    const segment = {
+    const span = spans[index];
+    const seg = {
       rowIndex: index + 1,
       from: currentStartCol,
       to: Math.min(totalCols, currentStartCol + span - 1),
-      color: colors[index] || 'dot-gray'
+      color: colors[index] || 'dot-gray',
     };
-
     currentStartCol += span;
-    return segment;
-  }).filter((s: any) => !!s) as any; // ✅ التعديل هنا: (s: any) واضافة as any في النهاية لتجنب مشاكل الأنواع
+    return seg;
+  });
 }
+
 getDotClass(row: number, col: number): string {
   // ✅ التصحيح هنا: استخدام s.rowIndex
   const seg = this.phaseSegments.find(s => s.rowIndex === row && col >= s.from && col <= s.to);
-  
+
   return seg ? seg.color : '';
 }
+templatesSM: any[] = [];
+templatesLR: any[] = [];
+
   // ===== Consult Layout =====
   private rebuildConsultLayout() {
     const allSubConsultations = (this.consultationCategories ?? [])
@@ -682,12 +788,13 @@ getDotClass(row: number, col: number): string {
     this.consultRowsUI = distributedRows;
   }
 
-  setConsultValue(sc: any, field: 'project_price' | 'project_duration_days', value: string) {
-    sc[field] = value;
-    // ✅ خليها dirty عند التعديل
-    sc.__dirty = true;
-    this.showBankMessage('success', 'تم تعديل قيمة (لم يتم الحفظ بعد)');
-  }
+setConsultValue(sc: any, field: 'project_price' | 'project_duration_days', value: string) {
+  sc[field] = value;
+  sc.__dirty = true;
+
+  // ❌ متعملش rebuildTimeline هنا
+  this.showBankMessage('success', 'تم تعديل قيمة (لم يتم الحفظ بعد)');
+}
 
   // ===== DASH Actions =====
   startEditDash() {
@@ -990,29 +1097,40 @@ private saveBankInternal(mode: 'create' | 'update') {
 }
 
   // ===== SUBSCRIPTIONS =====
-  loadSubscriptionFees() {
-    this.subscriptionLoading = true;
+loadSubscriptionFees() {
+  this.subscriptionLoading = true;
 
-    this.projectDataService.getSubscriptionFees().subscribe({
-      next: (res) => {
-        const data = res?.data ?? [];
-        this.subscriptionFees = Array.isArray(data) ? data : [];
-        this.subscriptionLoading = false;
+  this.projectDataService.getSubscriptionFees().subscribe({
+next: (res) => {
+  const data: any = (res?.data ?? {});   // ✅ مش []
 
-        this.sectionState.subs.hasData = (this.subscriptionFees ?? []).some(f => !this.isZeroLike(f.annual_fee));
-        this.sectionState.subs.isEditing = false;
+  const ownerFees = Array.isArray(data.project_owner)
+    ? data.project_owner.map((x: any) => ({ ...x, user_type: 'project_owner' }))
+    : [];
 
-        // ✅ saved + snapshot
-        this.isSaved.subs = this.sectionState.subs.hasData;
-        this.captureSubsSnapshot();
-      },
-      error: (err: HttpErrorResponse) => {
-        this.subscriptionLoading = false;
-        this.showBankMessage('error', this.getBackendErrorMessage(err));
-      }
-    });
-  }
+  const designerFees = Array.isArray(data.project_designer)
+    ? data.project_designer.map((x: any) => ({ ...x, user_type: 'project_designer' }))
+    : [];
 
+  this.subscriptionFees = [...ownerFees, ...designerFees];
+
+  this.subscriptionLoading = false;
+
+  this.sectionState.subs.hasData = (this.subscriptionFees ?? [])
+    .some(f => !this.isZeroLike(f.annual_fee));
+
+  this.sectionState.subs.isEditing = false;
+
+  this.isSaved.subs = this.sectionState.subs.hasData;
+  this.captureSubsSnapshot();
+},
+
+    error: (err: HttpErrorResponse) => {
+      this.subscriptionLoading = false;
+      this.showBankMessage('error', this.getBackendErrorMessage(err));
+    }
+  });
+}
   private captureSubsSnapshot() {
     this.initial.subsMap.clear();
     (this.subscriptionFees ?? []).forEach(f => {
