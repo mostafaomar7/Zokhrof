@@ -232,7 +232,7 @@ isOpening = true;
         this.isOpening = false;
       }, 1500);
     }, 100);
-  
+
     this.loadBankAccounts();
     this.loadSubscriptionFees();
     this.loadSectors();
